@@ -1,5 +1,0 @@
-/home/massi/devRepo/RiCopengl/build/CMakeFiles/edit_cache.dir
-/home/massi/devRepo/RiCopengl/build/CMakeFiles/rebuild_cache.dir
-/home/massi/devRepo/RiCopengl/build/src/CMakeFiles/OpenGLWindow.dir
-/home/massi/devRepo/RiCopengl/build/src/CMakeFiles/edit_cache.dir
-/home/massi/devRepo/RiCopengl/build/src/CMakeFiles/rebuild_cache.dir
