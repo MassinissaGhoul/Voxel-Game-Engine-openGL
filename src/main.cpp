@@ -6,8 +6,19 @@
 // Prototypes des fonctions
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
+const char *vertexShaderSource =
+    "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main()\n"
+    "{\n"
+    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\0";
 
 int main() {
+
+    int success;
+    char infoLog[512];
+
     // === Initialisation GLFW ===
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW.\n";
@@ -38,6 +49,7 @@ int main() {
     // Configuration de la fenêtre
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+    // creation buffer qui gere les sommets
     unsigned int VBO;
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -45,6 +57,19 @@ int main() {
                         0.0f,  0.0f,  0.5f, 0.0f};
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    // init du shader
+    unsigned int vertexShader;
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+
+    if (!success) {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
+                  << infoLog << std::endl;
+    }
     // === Boucle principale ===
     while (!glfwWindowShouldClose(window)) {
         // Entrées utilisateur
