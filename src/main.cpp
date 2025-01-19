@@ -38,6 +38,13 @@ int main() {
     // Configuration de la fenêtre
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+    unsigned int VBO;
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
+                        0.0f,  0.0f,  0.5f, 0.0f};
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     // === Boucle principale ===
     while (!glfwWindowShouldClose(window)) {
         // Entrées utilisateur
