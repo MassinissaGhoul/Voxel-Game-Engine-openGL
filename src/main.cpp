@@ -21,6 +21,13 @@ const char *fragmentShaderSource =
     "{\n"
     "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
     "}\n\0";
+
+const char *basGauche = "#version 330 core\n"
+                        "layout (location = 0) in vec3 aPos;\n"
+                        "void main()\n"
+                        "{\n"
+                        "   gl_Position = vec4(aPos, 1.0);\n"
+                        "}\n\0";
 int main() {
 
     int success;
@@ -120,6 +127,55 @@ int main() {
     // plus utile de garder en memoire apres qu'ils soit lié
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+
+    // AUtre triangle
+    unsigned int VAO2;
+    glGenVertexArrays(1, &VAO2);
+    glBindVertexArray(VAO2);
+
+    unsigned int VBO2;
+    glGenBuffers(1, &VBO2);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+
+    float triangleVertices[] = {
+        -1.0f, -1.0f, 0.0f, // bottom-left
+        -0.8f, -1.0f, 0.0f, // bottom-right
+        -1.0f, -0.8f, 0.0f  // top-left
+    };
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices), triangleVertices,
+                 GL_STATIC_DRAW);
+
+    unsigned int triangleVertexShader;
+    triangleVertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(triangleVertexShader, 1, &basGauche, NULL);
+    glCompileShader(triangleVertexShader);
+    glGetShaderiv(triangleVertexShader, GL_COMPILE_STATUS, &success);
+
+    if (!success) {
+        glGetShaderInfoLog(triangleVertexShader, 512, NULL, infoLog);
+        std::cout << "erreur = " << infoLog << std::endl;
+    }
+
+    unsigned int triFragShader;
+    triFragShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(triFragShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(triFragShader);
+
+    unsigned int triShaPro;
+    triShaPro = glCreateProgram();
+    glAttachShader(triShaPro, triangleVertexShader);
+    glAttachShader(triShaPro, triFragShader);
+    glLinkProgram(triShaPro);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
+                          (void *)0);
+    glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
+    glDeleteShader(triangleVertexShader);
+    glDeleteShader(triFragShader);
+
     // === Boucle principale ===
     while (!glfwWindowShouldClose(window)) {
         // Entrées utilisateur
@@ -135,7 +191,10 @@ int main() {
         glBindVertexArray(VAO);
         //        glDrawArrays(GL_TRIANGLES, 0, 3);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        // Échange des buffers
+
+        glBindVertexArray(VAO2);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+        //  Échange des buffers
         glfwSwapBuffers(window);
 
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -150,6 +209,9 @@ int main() {
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &VAO2);
+    glDeleteBuffers(1, &VBO2);
+
     return 0;
 }
 
