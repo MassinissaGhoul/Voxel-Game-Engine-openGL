@@ -4,6 +4,7 @@ set(SOURCES
     main.cpp
     glad/src/glad.c  # Chemin correct vers glad.c
     shader.cpp 
+    linking/lib/stb.cpp
 )
 
 # Créer l'exécutable

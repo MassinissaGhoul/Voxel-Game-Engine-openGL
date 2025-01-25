@@ -1,5 +1,6 @@
 
 #include "glad/include/glad/glad.h"
+#include "linking/include/stb/stb_image.h"
 #include "shader.h"
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
@@ -42,6 +43,26 @@ int main() {
 
     // Configuration de la fenêtre
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    int width, height, nrChannels;
+    unsigned char *data =
+        stbi_load("texture/wall.jpg", &width, &height, &nrChannels, 0);
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+                     GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+    float texCoords[] = {
+        0.0f, 0.0f, // lower-left corner
+        1.0f, 0.0f, // lower-right corner
+        0.5f, 1.0f  // top-center corner
+    };
+    //=== Triangle avec gradient
     Shader triShader("tri_vert.vs", "tri_frag.fs");
     float vertices[] = {
         // positions         // colors
@@ -49,7 +70,6 @@ int main() {
         -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom left
         0.0f,  0.5f,  0.0f, 0.0f, 0.0f, 1.0f  // top
     };
-
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -85,6 +105,9 @@ int main() {
     }
 
     // Nettoyage
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+
     return 0;
 }
 
