@@ -17,7 +17,7 @@ target_include_directories(OpenGLWindow PRIVATE
 )
 
 # Copier les fichiers shaders GLSL dans le dossier de build
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/tri_vert.vs ${CMAKE_CURRENT_SOURCE_DIR}/tri_frag.fs
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/tri_vert.vs ${CMAKE_CURRENT_SOURCE_DIR}/tri_frag.fs ${CMAKE_CURRENT_SOURCE_DIR}/texture
      DESTINATION ${CMAKE_BINARY_DIR})
 
 # Lier les bibliothèques nécessaires
