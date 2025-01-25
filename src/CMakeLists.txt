@@ -3,6 +3,7 @@
 set(SOURCES
     main.cpp
     glad/src/glad.c  # Chemin correct vers glad.c
+    shader.cpp 
 )
 
 # Créer l'exécutable
@@ -13,6 +14,10 @@ target_include_directories(OpenGLWindow PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/glad/include
 )
+
+# Copier les fichiers shaders GLSL dans le dossier de build
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/tri_vert.vs ${CMAKE_CURRENT_SOURCE_DIR}/tri_frag.fs
+     DESTINATION ${CMAKE_BINARY_DIR})
 
 # Lier les bibliothèques nécessaires
 find_package(OpenGL REQUIRED)

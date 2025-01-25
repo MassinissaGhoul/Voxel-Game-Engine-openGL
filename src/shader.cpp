@@ -1,5 +1,4 @@
 #include "shader.h"
-#include <fstream>
 
 Shader::Shader(const char *vertexPath, const char *fragmentPath) {
     // ça recup les data des shader de vertex et fragment et on declare les
@@ -12,6 +11,11 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath) {
         // ça ouvre les fichiers
         vShaderFile.open(vertexPath);
         fShaderFile.open(fragmentPath);
+        if (!vShaderFile.is_open() || !fShaderFile.is_open()) {
+            std::cerr << "ERROR::SHADER::_FILE_NOT_OPENED" << std::endl;
+            std::cout << vertexPath << "\n" << fragmentPath << std::endl;
+            return;
+        }
         std::stringstream vShaderStream, fShaderStream;
 
         // on inject dans les objets stringstream le contenu des fichiers
