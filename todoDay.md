@@ -10,3 +10,11 @@ Texture:
     - Read the page
     - Do the exercices
 
+
+
+
+in Future:
+Shader Class: 
+    - Add Destructor
+    - Make it more futur proof (main function is too big)
+
