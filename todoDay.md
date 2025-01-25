@@ -1,6 +1,7 @@
 #TODO
 
 task with // = done
+          || = done but late date of completion is writed 
 25/01/25
 Use Shader Class:
     //- Draw a simple triangle using this Class

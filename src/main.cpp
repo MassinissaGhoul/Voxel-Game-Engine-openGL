@@ -109,7 +109,7 @@ int main() {
         processInput(window);
 
         // Couleur de fond
-        glClearColor(0.9f, 0.5f, 0.7f, 1.0f);
+        glClearColor(0.0016f, 0.0012f, 0.252f, 1.0f);
 
         // Rendu
         glClear(GL_COLOR_BUFFER_BIT);
