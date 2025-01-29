@@ -128,6 +128,7 @@ int main() {
     }
     triShader.use();
     triShader.setInt("texture2", 1);
+
     glBindVertexArray(VAO);
 
     // === Boucle principale ===
@@ -148,6 +149,20 @@ int main() {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // create transformations
+        glm::mat4 transform = glm::mat4(
+            1.0f); // make sure to initialize matrix to identity matrix first
+        transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.0f));
+        transform = glm::rotate(transform, (float)glfwGetTime(),
+                                glm::vec3(0.5f, 0.0f, 1.0f));
+
+        // get matrix's uniform location and set matrix
+        unsigned int transformLoc =
+            glGetUniformLocation(triShader.ID, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE,
+                           glm::value_ptr(transform));
+
         glfwSwapBuffers(window);
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         //  Gestion des événements
