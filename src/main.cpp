@@ -1,5 +1,8 @@
 
 #include "glad/include/glad/glad.h"
+#include "linking/include/glm/glm.hpp"
+#include "linking/include/glm/gtc/matrix_transform.hpp"
+#include "linking/include/glm/gtc/type_ptr.hpp"
 #include "linking/include/stb/stb_image.h"
 #include "shader.h"
 #include <GL/gl.h>
@@ -79,9 +82,10 @@ int main() {
     glEnableVertexAttribArray(2);
 
     int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
     unsigned char *data =
         stbi_load("texture/wall.jpg", &width, &height, &nrChannels, 0);
-    unsigned int texture;
+    unsigned int texture, texture2;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
@@ -100,7 +104,30 @@ int main() {
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data);
+
+    // texture 2
+
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                    GL_REPEAT); // set texture wrapping to GL_REPEAT (default
+                                // wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    data = stbi_load("texture/face.png", &width, &height, &nrChannels, 0);
+    if (data) {
+        // note that the awesomeface.png has transparency and thus an alpha
+        // channel, so make sure to tell OpenGL the data type is of GL_RGBA
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
+                     GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cout << "Failed to load texture" << std::endl;
+    }
     triShader.use();
+    triShader.setInt("texture2", 1);
     glBindVertexArray(VAO);
 
     // === Boucle principale ===
@@ -116,6 +143,10 @@ int main() {
 
         // triShader.use();
 
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window);
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -126,6 +157,7 @@ int main() {
     // Nettoyage
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
 
     return 0;
 }

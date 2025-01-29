@@ -14,6 +14,8 @@ add_executable(OpenGLWindow ${SOURCES})
 target_include_directories(OpenGLWindow PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/glad/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/linking/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/linking/lib
 )
 
 # Copier les fichiers shaders GLSL dans le dossier de build

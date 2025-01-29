@@ -8,7 +8,7 @@ Use Shader Class:
     //- classic color edges triangle
     //- Shader class with more error log
 Texture:
-    - Read the page
+    //- Read the page
     - Do the exercices
 
 
