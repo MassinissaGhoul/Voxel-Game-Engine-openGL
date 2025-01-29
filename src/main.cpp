@@ -155,7 +155,7 @@ int main() {
             1.0f); // make sure to initialize matrix to identity matrix first
         transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.0f));
         transform = glm::rotate(transform, (float)glfwGetTime(),
-                                glm::vec3(0.5f, 0.0f, 1.0f));
+                                glm::vec3(0.5f, 0.8f, 1.0f));
 
         // get matrix's uniform location and set matrix
         unsigned int transformLoc =
