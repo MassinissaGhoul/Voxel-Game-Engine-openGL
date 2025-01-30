@@ -16,7 +16,7 @@ void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 8.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -240,7 +240,6 @@ int main() {
         view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0),
                            glm::vec3(0.0, 1.0, 0.0));
         */
-
         glm::mat4 view = camera.getViewMatrix();
         triShader.setMat4("view", view);
         glBindVertexArray(VAO);
@@ -322,6 +321,7 @@ void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
 
     lastX = xpos;
     lastY = ypos;
-
-    camera.mouseInput(xoffset, yoffset);
+    std::cout << "Offsets souris corrigés: X=" << xoffset << ", Y=" << yoffset
+              << std::endl;
+    camera.mouseInput(xoffset, yoffset, true);
 }
