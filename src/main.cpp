@@ -9,11 +9,13 @@
 #include "shader.h"
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
+#include <chrono>
 #include <iostream>
 // Prototypes des fonctions
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+void calculateFPS();
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 Camera camera(glm::vec3(0.0f, 8.0f, 3.0f));
@@ -201,7 +203,7 @@ int main() {
 
     glm::mat4 projection = glm::mat4(1.0f);
     projection =
-        glm::perspective(glm::radians(145.0f),
+        glm::perspective(glm::radians(70.0f),
                          (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
     triShader.setMat4("projection", projection);
 
@@ -215,7 +217,7 @@ int main() {
         lastFrame = currentFrame;
         // Entrées utilisateur
         processInput(window);
-
+        calculateFPS();
         // Couleur de fond
         glClearColor(0.0016f, 0.0012f, 0.252f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -321,7 +323,25 @@ void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
 
     lastX = xpos;
     lastY = ypos;
+    /*
     std::cout << "Offsets souris corrigés: X=" << xoffset << ", Y=" << yoffset
-              << std::endl;
+              << std::endl; */
     camera.mouseInput(xoffset, yoffset, true);
+}
+
+void calculateFPS() {
+    static int frameCount = 0;
+    static auto lastTime = std::chrono::high_resolution_clock::now();
+
+    frameCount++;
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    double elapsedTime =
+        std::chrono::duration<double, std::milli>(currentTime - lastTime)
+            .count();
+
+    if (elapsedTime > 1000.0) { // Une seconde est passée
+        std::cout << "FPS: " << frameCount << std::endl;
+        frameCount = 0;
+        lastTime = currentTime;
+    }
 }

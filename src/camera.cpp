@@ -14,22 +14,22 @@ void Camera::keyboardInput(Camera_Movement direction, float deltaTime) {
     float velocity = this->movementSpeed * deltaTime;
     switch (direction) {
     case FORWARD:
-        std::cout << "Mouvement détecté: AVANCE " << direction << std::endl;
+        // std::cout << "Mouvement détecté: AVANCE " << direction << std::endl;
 
         this->cameraPos += cameraFront * velocity;
         break;
     case BACKWARD:
-        std::cout << "Mouvement détecté: RECULE " << direction << std::endl;
+        // std::cout << "Mouvement détecté: RECULE " << direction << std::endl;
 
         this->cameraPos -= cameraFront * velocity;
         break;
     case LEFT:
-        std::cout << "Mouvement détecté: LEFT " << direction << std::endl;
+        // std::cout << "Mouvement détecté: LEFT " << direction << std::endl;
 
         this->cameraPos -= cameraRight * velocity;
         break;
     case RIGHT:
-        std::cout << "Mouvement détecté:RIGHT  " << direction << std::endl;
+        // std::cout << "Mouvement détecté:RIGHT  " << direction << std::endl;
 
         this->cameraPos += cameraRight * velocity;
         break;
@@ -38,8 +38,9 @@ void Camera::keyboardInput(Camera_Movement direction, float deltaTime) {
 
 void Camera::mouseInput(float xoffset, float yoffset,
                         GLboolean constraintPitch) {
+    /*
     std::cout << "Offsets souris: X=" << xoffset << ", Y=" << yoffset
-              << std::endl;
+              << std::endl; */
     xoffset *= this->mouseSensitivity;
     yoffset *= this->mouseSensitivity;
     this->yaw += xoffset;
@@ -53,9 +54,9 @@ void Camera::mouseInput(float xoffset, float yoffset,
             this->pitch = -89.0f;
         }
     }
-
+    /*
     std::cout << "Yaw: " << this->yaw << ", Pitch: " << this->pitch
-              << std::endl;
+              << std::endl; */
     updateCameraVectors();
 }
 
@@ -83,6 +84,7 @@ void Camera::updateCameraVectors() {
     // Recalcul de cameraUp (vecteur haut)
     this->cameraUp =
         glm::normalize(glm::cross(this->cameraRight, this->cameraFront));
+    /*
     std::cout << "Vecteurs mis à jour - Front: " << cameraFront.x << ", "
-              << cameraFront.y << ", " << cameraFront.z << std::endl;
+              << cameraFront.y << ", " << cameraFront.z << std::endl; */
 }
