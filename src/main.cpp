@@ -1,5 +1,6 @@
 
 #include "glad/include/glad/glad.h"
+#include "linking/include/glm/ext/matrix_transform.hpp"
 #include "linking/include/glm/glm.hpp"
 #include "linking/include/glm/gtc/matrix_transform.hpp"
 #include "linking/include/glm/gtc/type_ptr.hpp"
@@ -14,6 +15,10 @@ void processInput(GLFWwindow *window);
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+
+const int gridX = 5;
+const int gridY = 5;
+const float spacing = 2.2f;
 int main() {
 
     int success;
@@ -48,9 +53,10 @@ int main() {
 
     // Configuration de la fenêtre
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
+    glEnable(GL_DEPTH_TEST);
     //=== Triangle avec gradient
     Shader triShader("tri_vert.vs", "tri_frag.fs");
+    /*
     float vertices[] = {
         // positions        // texture coords
         0.5f,  0.5f,  0.0f, 1.0f, 1.0f, // top right
@@ -58,11 +64,58 @@ int main() {
         -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
         -0.5f, 0.5f,  0.0f, 0.0f, 1.0f  // top left
     };
+*/
 
-    unsigned int indices[] = {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
+    float vertices[] = {
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,
+        0.5f,  0.5f,  -0.5f, 1.0f, 1.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+
+        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f, 0.5f,  0.5f,  0.0f, 1.0f, -0.5f, -0.5f, 0.5f,  0.0f, 0.0f,
+
+        -0.5f, 0.5f,  0.5f,  1.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  0.5f,  1.0f, 0.0f,
+
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
+        0.5f,  -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f,  -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f,  -0.5f, 0.5f,  1.0f, 0.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+
+        -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, 0.5f,  0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f};
+    /*
+
+    float vertices[] = {
+        // Position           // Texture
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,  // 0: avant bas gauche
+         0.5f, -0.5f, -0.5f, 1.0f, 0.0f,  // 1: avant bas droite
+         0.5f,  0.5f, -0.5f, 1.0f, 1.0f,  // 2: avant haut droite
+        -0.5f,  0.5f, -0.5f, 0.0f, 1.0f,  // 3: avant haut gauche
+        -0.5f, -0.5f,  0.5f, 0.0f, 0.0f,  // 4: arrière bas gauche
+         0.5f, -0.5f,  0.5f, 1.0f, 0.0f,  // 5: arrière bas droite
+         0.5f,  0.5f,  0.5f, 1.0f, 1.0f,  // 6: arrière haut droite
+        -0.5f,  0.5f,  0.5f, 0.0f, 1.0f   // 7: arrière haut gauche
     };
+    */
+    unsigned int indices[] = {// Face avant
+                              0, 1, 2, 2, 3, 0,
+                              // Face arrière
+                              4, 5, 6, 6, 7, 4,
+                              // Face gauche
+                              0, 3, 7, 7, 4, 0,
+                              // Face droite
+                              1, 2, 6, 6, 5, 1,
+                              // Face dessus
+                              3, 2, 6, 6, 7, 3,
+                              // Face dessous
+                              0, 1, 5, 5, 4, 0};
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -73,10 +126,13 @@ int main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
                  GL_STATIC_DRAW);
+
+    // Position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
                           (void *)0);
     glEnableVertexAttribArray(0);
 
+    // Texture coord attribute
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
                           (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(2);
@@ -103,18 +159,19 @@ int main() {
     } else {
         std::cout << "Failed to load texture" << std::endl;
     }
+
     stbi_image_free(data);
 
     // texture 2
 
     glGenTextures(1, &texture2);
     glBindTexture(GL_TEXTURE_2D, texture2);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     // set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    data = stbi_load("texture/face.png", &width, &height, &nrChannels, 0);
+    data = stbi_load("texture/AAA.png", &width, &height, &nrChannels, 0);
     if (data) {
         // note that the awesomeface.png has transparency and thus an alpha
         // channel, so make sure to tell OpenGL the data type is of GL_RGBA
@@ -122,7 +179,8 @@ int main() {
                      GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {
-        std::cout << "Failed to load texture" << std::endl;
+        std::cout << "Failed to load texture\n"
+                  << stbi_failure_reason() << std::endl;
     }
     stbi_image_free(data);
     triShader.use();
@@ -130,7 +188,7 @@ int main() {
     triShader.setInt("texture2", 1);
     glBindVertexArray(VAO);
 
-    // 3 cube
+    // plei de cube
 
     // === Boucle principale ===
     while (!glfwWindowShouldClose(window)) {
@@ -139,7 +197,7 @@ int main() {
 
         // Couleur de fond
         glClearColor(0.0016f, 0.0012f, 0.252f, 1.0f);
-
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // Rendu
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -150,42 +208,65 @@ int main() {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
 
-        // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         triShader.use();
-
-        // create transformations
-        glm::mat4 model = glm::mat4(
-            1.0f); // make sure to initialize matrix to identity matrix first
-        glm::mat4 view = glm::mat4(1.0f);
-        glm::mat4 projection = glm::mat4(1.0f);
-
-        model = glm::rotate(model, glm::radians(-55.0f),
-                            glm::vec3(1.0f, 0.0f, 0.0f));
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-        projection = glm::perspective(glm::radians(45.0f),
-                                      (float)SCR_WIDTH / (float)SCR_HEIGHT,
-                                      0.1f, 100.0f);
-
         /*
-        model = model;
-        view = view;
-        projection = projection;
-*/
-        // retrieve the matrix uniform locations
-        // unsigned int modelLoc = glGetUniformLocation(triShader.ID, "model");
-        // unsigned int viewLoc = glGetUniformLocation(triShader.ID, "view");
-        // pass them to the shaders (3 different ways)
-        // glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        // glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
-        triShader.setMat4("view", view);
-        triShader.setMat4("model", model);
-        // note: currently we set the projection matrix each frame, but since
-        // the projection matrix rarely changes it's often best practice to set
-        // it outside the main loop only once.
-        triShader.setMat4("projection", projection);
+                // create transformations
+                glm::mat4 model = glm::mat4(
+                    1.0f); // make sure to initialize matrix to identity matrix
+           first glm::mat4 view = glm::mat4(1.0f); glm::mat4 projection =
+           glm::mat4(1.0f); model = glm::rotate(model, (float)glfwGetTime() *
+           glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f)); view =
+           glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f)); projection =
+           glm::perspective(glm::radians(105.0f), (float)SCR_WIDTH /
+           (float)SCR_HEIGHT, 0.1f, 100.0f);
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                // retrieve the matrix uniform locations
+                // unsigned int modelLoc = glGetUniformLocation(triShader.ID,
+           "model");
+                // unsigned int viewLoc = glGetUniformLocation(triShader.ID,
+           "view");
+                // pass them to the shaders (3 different ways)
+                // glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
+           glm::value_ptr(model));
+                // glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+                triShader.setMat4("view", view);
+                triShader.setMat4("model", model);
+                // note: currently we set the projection matrix each frame, but
+           since
+                // the projection matrix rarely changes it's often best practice
+           to set
+                // it outside the main loop only once.
+                triShader.setMat4("projection", projection);
+                */
 
+        for (int x = 0; x < gridX; x++) {
+            for (int y = 0; y < gridY; y++) {
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(
+                    model, glm::vec3(x * spacing, y * spacing, 0.0f));
+
+                glm::mat4 view = glm::mat4(1.0f);
+                glm::mat4 projection = glm::mat4(1.0f);
+                model = glm::rotate(model,
+                                    (float)glfwGetTime() * glm::radians(50.0f),
+                                    glm::vec3(0.5f, 1.0f, 0.0f));
+                view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+                projection = glm::perspective(
+                    glm::radians(145.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT,
+                    0.1f, 100.0f);
+                // balance au shader
+                triShader.setMat4("model", model);
+                triShader.setMat4("view", view);
+                // note: currently we set the projection matrix each frame, but
+                // since the projection matrix rarely changes it's often best
+                // practice to set it outside the main loop only once.
+                triShader.setMat4("projection", projection);
+                glBindVertexArray(VAO);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
+        }
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window);
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         //  Gestion des événements
