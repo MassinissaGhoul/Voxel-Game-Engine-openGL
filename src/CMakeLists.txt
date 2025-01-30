@@ -3,7 +3,8 @@
 set(SOURCES
     main.cpp
     glad/src/glad.c  # Chemin correct vers glad.c
-    shader.cpp 
+    shader.cpp
+    camera.cpp
     linking/lib/stb.cpp
 )
 
