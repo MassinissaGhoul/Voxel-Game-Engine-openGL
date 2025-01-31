@@ -5,6 +5,8 @@ set(SOURCES
     glad/src/glad.c  # Chemin correct vers glad.c
     shader.cpp
     camera.cpp
+    block.cpp
+    textureAtlas.cpp
     linking/lib/stb.cpp
 )
 
@@ -17,10 +19,11 @@ target_include_directories(OpenGLWindow PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/glad/include
     ${CMAKE_CURRENT_SOURCE_DIR}/linking/include
     ${CMAKE_CURRENT_SOURCE_DIR}/linking/lib
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 # Copier les fichiers shaders GLSL dans le dossier de build
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/tri_vert.vs ${CMAKE_CURRENT_SOURCE_DIR}/tri_frag.fs ${CMAKE_CURRENT_SOURCE_DIR}/texture
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/shader ${CMAKE_CURRENT_SOURCE_DIR}/texture
      DESTINATION ${CMAKE_BINARY_DIR})
 
 # Lier les bibliothèques nécessaires

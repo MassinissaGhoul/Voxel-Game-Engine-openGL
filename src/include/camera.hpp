@@ -2,12 +2,12 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
-#include "glad/include/glad/glad.h"
-#include "linking/include/glm/ext/matrix_float4x4.hpp"
+#include "../glad/include/glad/glad.h"
+#include "../linking/include/glm/ext/matrix_float4x4.hpp"
 
-#include "linking/include/glm/glm.hpp"
-#include "linking/include/glm/gtc/matrix_transform.hpp"
-#include "linking/include/glm/gtc/type_ptr.hpp"
+#include "../linking/include/glm/glm.hpp"
+#include "../linking/include/glm/gtc/matrix_transform.hpp"
+#include "../linking/include/glm/gtc/type_ptr.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>

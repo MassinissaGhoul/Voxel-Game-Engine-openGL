@@ -113,7 +113,7 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     Shader triShader("shader/tri_vert.vs", "shader/tri_frag.fs");
     TextureAtlas atlas("texture/atlas.png", 16);
-    Block block(glm::ivec3(0, 0, 0), DIRT, 2, atlas);
+    Block block(glm::ivec3(0, 0, 0), DIRT, 0, atlas);
     triShader.use();
     triShader.setInt("atlasTexture", 0);
     // Boucle de rendu

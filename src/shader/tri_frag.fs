@@ -1,8 +1,12 @@
+
 #version 330 core
-out vec4 FragColor;  
-in vec3 ourColor;
-  
-void main()
-{
-    FragColor = vec4(ourColor, 1.0);
+
+out vec4 FragColor;
+in vec2 TexCoord;
+
+uniform sampler2D atlasTexture; // L’atlas de textures
+
+void main() {
+    FragColor = texture(atlasTexture, TexCoord);
 }
+

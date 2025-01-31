@@ -1,4 +1,4 @@
-#include "shader.h"
+#include "include/shader.h"
 
 Shader::Shader(const char *vertexPath, const char *fragmentPath) {
     // ça recup les data des shader de vertex et fragment et on declare les
