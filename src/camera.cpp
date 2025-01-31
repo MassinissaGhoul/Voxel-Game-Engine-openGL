@@ -14,8 +14,9 @@ void Camera::keyboardInput(Camera_Movement direction, float deltaTime) {
     float velocity = this->movementSpeed * deltaTime;
     switch (direction) {
     case FORWARD:
-        std::cout << "Mouvement détecté: AVANCE " << direction << std::endl;
-
+        /*
+    std::cout << "Mouvement détecté: AVANCE " << direction << std::endl;
+*/
         this->cameraPos += cameraFront * velocity;
         break;
     case BACKWARD:

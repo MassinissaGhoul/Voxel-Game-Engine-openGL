@@ -67,9 +67,10 @@ void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
 
     lastX = xpos;
     lastY = ypos;
-
-    std::cout << "Offsets souris corrigés: X=" << xoffset << ", Y=" << yoffset
-              << std::endl;
+    /*
+        std::cout << "Offsets souris corrigés: X=" << xoffset << ", Y=" <<
+       yoffset
+                  << std::endl;*/
     camera.mouseInput(xoffset, yoffset, true);
 }
 
@@ -110,6 +111,7 @@ int main() {
 
     // Définition du viewport
     glViewport(0, 0, 800, 600);
+    glfwSwapInterval(0);
     glEnable(GL_DEPTH_TEST);
     Shader triShader("shader/tri_vert.vs", "shader/tri_frag.fs");
     TextureAtlas atlas("texture/atlas.png", 16);
