@@ -1,5 +1,6 @@
 #include "include/chunk.hpp"
 #include "blockRegistry.cpp"
+#include "include/block.hpp"
 #include <cstdint>
 
 Chunk::Chunk(TextureAtlas &atlas) {
