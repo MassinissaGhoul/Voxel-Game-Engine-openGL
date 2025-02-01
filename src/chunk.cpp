@@ -199,15 +199,25 @@ void Chunk::setupMesh(TextureAtlas &atlas) {
 
     glBindVertexArray(0);
 
-    // Garde en mémoire le nombre de vertices pour le draw
+    // Garde en mémoire le nombre de vertices pour le draw d'ou le / 5
     totalVertices = static_cast<int>(vertexData.size() / 5);
 }
 
 void Chunk::draw(Shader &shader) {
-    // Binder la texture (atlas.bind() ou un glBindTexture(GL_TEXTURE_2D, ...))
+    // si atlas.bind() is not in main put it here
     shader.use();
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, totalVertices);
     glBindVertexArray(0);
 }
-Chunk::~Chunk() {}
+Chunk::~Chunk() {
+
+    glDeleteBuffers(1, &this->VBO);
+    if (this->EBO != 0) {
+        glDeleteBuffers(1, &this->EBO);
+    }
+    if (this->instanceVBO != 0) {
+        glDeleteBuffers(1, &this->instanceVBO);
+    }
+    glDeleteVertexArrays(1, &this->VAO);
+}
