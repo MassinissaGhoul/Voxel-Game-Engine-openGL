@@ -12,6 +12,7 @@ enum blockType : uint8_t {
     GRASS,
     STONE,
     WOOD,
+    AIR,
 };
 
 class Block {

@@ -7,6 +7,7 @@ set(SOURCES
     camera.cpp
     block.cpp
     textureAtlas.cpp
+    chunk.cpp
     linking/lib/stb.cpp
 )
 

@@ -2,6 +2,7 @@
 #include "glad/include/glad/glad.h"
 #include "include/block.hpp"
 #include "include/camera.hpp"
+#include "include/chunk.hpp"
 #include "include/shader.h"
 #include "include/textureAtlas.hpp"
 #include "linking/include/glm/ext/matrix_transform.hpp"
@@ -116,8 +117,14 @@ int main() {
     Shader triShader("shader/tri_vert.vs", "shader/tri_frag.fs");
     TextureAtlas atlas("texture/atlas.png", 16);
     Block block(glm::ivec3(0, 0, 0), DIRT, 2, atlas);
+    std::cout << block.VAO << block.VBO;
+    if (block.VAO == 0) {
+        std::cerr << "Erreur : VAO du Block non généré !" << std::endl;
+        return -1;
+    }
     triShader.use();
     triShader.setInt("atlasTexture", 0);
+    Chunk chunk(atlas);
     // Boucle de rendu
     while (!glfwWindowShouldClose(window)) {
 
@@ -138,8 +145,10 @@ int main() {
         glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         atlas.bind();
+        triShader.use();
+        chunk.draw(triShader);
         block.render(triShader, atlas);
-        // Échanger les buffers et traiter les événements
+        //  Échanger les buffers et traiter les événements
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

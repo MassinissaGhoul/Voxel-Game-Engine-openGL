@@ -1,0 +1,212 @@
+#include "include/chunk.hpp"
+#include "blockRegistry.cpp"
+#include <cstdint>
+
+Chunk::Chunk(TextureAtlas &atlas) {
+    // Générer les buffers
+
+    for (int x = 0; x < CHUNK_SIZE; x++) {
+        for (int y = 0; y < CHUNK_SIZE; y++) {
+            for (int z = 0; z < CHUNK_SIZE; z++) {
+                blocks[x][y][z] = STONE;
+            }
+        }
+    }
+    glGenVertexArrays(1, &this->VAO);
+    glGenBuffers(1, &this->VBO);
+    setupMesh(atlas);
+}
+bool Chunk::isFaceVisible(int x, int y, int z, Direction direction) {
+    auto [dx, dy, dz] = directionOffsets[static_cast<int>(direction)];
+    int nx = x + dx;
+    int ny = y + dy;
+    int nz = z + dz;
+    if (nx < 0 || nx >= this->CHUNK_SIZE || ny < 0 || ny >= this->CHUNK_SIZE ||
+        nz < 0 || nz >= this->CHUNK_SIZE) {
+        return true;
+    }
+    blockType neighbor = blocks[nx][ny][nz];
+    if (neighbor == AIR) {
+        return true;
+    }
+    return false;
+}
+
+inline void Chunk::addVertex(std::vector<float> &vertexData, float px, float py,
+                             float pz, float u, float v) {
+    vertexData.push_back(px);
+    vertexData.push_back(py);
+    vertexData.push_back(pz);
+    vertexData.push_back(u);
+    vertexData.push_back(v);
+}
+void Chunk::addFaceVertices(std::vector<float> &vertexData, int x, int y, int z,
+                            Direction dir, float uMin, float vMin, float uMax,
+                            float vMax) {
+    // On calcule les 4 points de la face en fonction de la direction
+    // P1, P2, P3, P4 (x,y,z)
+    // +2 triangles (6 vertices au total).
+    float X = float(x);
+    float Y = float(y);
+    float Z = float(z);
+
+    // Les 4 coins (P1,P2,P3,P4) selon la face
+    // => On place le bloc dans [x, x+1], [y, y+1], [z, z+1]
+    glm::vec3 P1, P2, P3, P4;
+
+    switch (dir) {
+    case TOP:
+        // plan y+1
+        // P1 = (x,   y+1, z)
+        // P2 = (x+1, y+1, z)
+        // P3 = (x+1, y+1, z+1)
+        // P4 = (x,   y+1, z+1)
+        P1 = {X, Y + 1, Z};
+        P2 = {X + 1, Y + 1, Z};
+        P3 = {X + 1, Y + 1, Z + 1};
+        P4 = {X, Y + 1, Z + 1};
+        break;
+
+    case BOTTOM:
+        // plan y
+        P1 = {X, Y, Z};
+        P2 = {X + 1, Y, Z};
+        P3 = {X + 1, Y, Z + 1};
+        P4 = {X, Y, Z + 1};
+        break;
+
+    case DIR_LEFT:
+        // plan x
+        P1 = {X, Y, Z};
+        P2 = {X, Y, Z + 1};
+        P3 = {X, Y + 1, Z + 1};
+        P4 = {X, Y + 1, Z};
+        break;
+
+    case DIR_RIGHT:
+        // plan x+1
+        P1 = {X + 1, Y, Z};
+        P2 = {X + 1, Y, Z + 1};
+        P3 = {X + 1, Y + 1, Z + 1};
+        P4 = {X + 1, Y + 1, Z};
+        break;
+
+    case FRONT:
+        // plan z+1
+        P1 = {X, Y, Z + 1};
+        P2 = {X + 1, Y, Z + 1};
+        P3 = {X + 1, Y + 1, Z + 1};
+        P4 = {X, Y + 1, Z + 1};
+        break;
+
+    case BACK:
+        // plan z
+        P1 = {X, Y, Z};
+        P2 = {X + 1, Y, Z};
+        P3 = {X + 1, Y + 1, Z};
+        P4 = {X, Y + 1, Z};
+        break;
+    }
+
+    // Selon le winding (ordre), on peut choisir :
+    // Tri1 : P1, P2, P3
+    // Tri2 : P1, P3, P4
+    // On associe uMin/vMin => P1, etc.
+    // A adapter pour avoir un rendu cohérent (UV + face culling)
+
+    // Triangle 1 (P1, P2, P3)
+    addVertex(vertexData, P1.x, P1.y, P1.z, uMin, vMin);
+    addVertex(vertexData, P2.x, P2.y, P2.z, uMax, vMin);
+    addVertex(vertexData, P3.x, P3.y, P3.z, uMax, vMax);
+
+    // Triangle 2 (P1, P3, P4)
+    addVertex(vertexData, P1.x, P1.y, P1.z, uMin, vMin);
+    addVertex(vertexData, P3.x, P3.y, P3.z, uMax, vMax);
+    addVertex(vertexData, P4.x, P4.y, P4.z, uMin, vMax);
+}
+void Chunk::setupMesh(TextureAtlas &atlas) {
+    std::vector<float> vertexData;
+    vertexData.reserve(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 6 * 6 * 5);
+    // Réserve un maximum possible (optionnel)
+
+    for (int x = 0; x < CHUNK_SIZE; x++) {
+        for (int y = 0; y < CHUNK_SIZE; y++) {
+            for (int z = 0; z < CHUNK_SIZE; z++) {
+                blockType currentType = blocks[x][y][z];
+                // On ne dessine pas l'AIR
+                if (currentType == AIR) {
+                    continue;
+                }
+
+                // Récupère la "définition" du bloc (opacité, uvTop, uvSide,
+                // uvBottom)
+                const blockData &bData = g_blockRegistry[currentType];
+
+                // Parcours les 6 directions
+                for (int d = 0; d < 6; d++) {
+                    Direction dir = static_cast<Direction>(d);
+
+                    // Vérifie si la face est visible
+                    if (!isFaceVisible(x, y, z, dir)) {
+                        continue;
+                    }
+
+                    // Choisit quel index UV on utilise (top/bottom/side)
+                    uint8_t uvIndex = 0;
+                    switch (dir) {
+                    case TOP:
+                        uvIndex = bData.uvTop;
+                        break;
+                    case BOTTOM:
+                        uvIndex = bData.uvBottom;
+                        break;
+                    default:
+                        uvIndex = bData.uvSide;
+                        break;
+                    }
+
+                    // Récupère (uMin, vMin, uMax, vMax) dans un glm::vec4
+                    glm::vec4 uvCoords = atlas.getUVs(uvIndex);
+                    float uMin = uvCoords.x;
+                    float vMin = uvCoords.y;
+                    float uMax = uvCoords.z;
+                    float vMax = uvCoords.w;
+
+                    // Ajoute les 2 triangles (6 vertices) de cette face
+                    addFaceVertices(vertexData, x, y, z, dir, uMin, vMin, uMax,
+                                    vMax);
+                }
+            }
+        }
+    }
+
+    // Upload sur GPU
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float),
+                 vertexData.data(), GL_STATIC_DRAW);
+
+    // Attributs : positions (3 floats) + UV (2 floats) = 5 floats/vertex
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void *)0);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void *)(3 * sizeof(float)));
+
+    glBindVertexArray(0);
+
+    // Garde en mémoire le nombre de vertices pour le draw
+    totalVertices = static_cast<int>(vertexData.size() / 5);
+}
+
+void Chunk::draw(Shader &shader) {
+    // Binder la texture (atlas.bind() ou un glBindTexture(GL_TEXTURE_2D, ...))
+    shader.use();
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, totalVertices);
+    glBindVertexArray(0);
+}
+Chunk::~Chunk() {}
