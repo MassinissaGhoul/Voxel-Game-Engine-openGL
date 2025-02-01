@@ -8,6 +8,7 @@ set(SOURCES
     block.cpp
     textureAtlas.cpp
     chunk.cpp
+    loadSky.cpp
     linking/lib/stb.cpp
 )
 

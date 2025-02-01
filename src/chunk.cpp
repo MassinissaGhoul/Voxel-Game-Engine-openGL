@@ -172,7 +172,7 @@ void Chunk::setupMesh(TextureAtlas &atlas) {
                     float vMin = uvCoords.y;
                     float uMax = uvCoords.z;
                     float vMax = uvCoords.w;
-
+                    std::cout << x << y << z << std::endl;
                     // Ajoute les 2 triangles (6 vertices) de cette face
                     addFaceVertices(vertexData, x, y, z, dir, uMin, vMin, uMax,
                                     vMax);

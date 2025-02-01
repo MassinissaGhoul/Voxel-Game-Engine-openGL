@@ -7,7 +7,6 @@
 #include "textureAtlas.hpp"
 #include <array>
 
-#include <map>
 #include <vector>
 
 enum Direction { FRONT, BACK, DIR_RIGHT, DIR_LEFT, TOP, BOTTOM };
@@ -27,8 +26,10 @@ struct blockData {
         int uvBottom;
         int uvSide;
 };
-
+class Camera;
 class Chunk {
+        friend class Camera;
+
     public:
         static const size_t CHUNK_SIZE = 32;
 

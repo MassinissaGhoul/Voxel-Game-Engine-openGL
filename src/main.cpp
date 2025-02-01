@@ -1,8 +1,8 @@
-
 #include "glad/include/glad/glad.h"
 #include "include/block.hpp"
 #include "include/camera.hpp"
 #include "include/chunk.hpp"
+#include "include/loadSky.hpp"
 #include "include/shader.h"
 #include "include/textureAtlas.hpp"
 #include "linking/include/glm/ext/matrix_transform.hpp"
@@ -16,63 +16,42 @@
 void calculateFPS();
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-Camera camera(glm::vec3(0.0f, 8.0f, 3.0f));
+// Camera camera(glm::vec3(0.0f, 8.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
+Camera *camera;
+void processInput(GLFWwindow *window);
+void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
 // timing
 float deltaTime = 0.0f; // time between current frame and last frame
 float lastFrame = 0.0f;
-void processInput(GLFWwindow *window) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, true);
-    }
-    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
-        // std::cout << "LINE\n" << std::endl;
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
-        // std::cout << "FILL" << std::endl;
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.keyboardInput(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.keyboardInput(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.keyboardInput(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.keyboardInput(RIGHT, deltaTime);
-}
+void printGPUMemoryUsage() {
+    std::ifstream gpuFile("/sys/class/drm/card1/device/gpu_busy_percent");
+    std::ifstream vramFile("/sys/class/drm/card1/device/mem_busy_percent");
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-    std::cout << "Width: " << width << ", Height: " << height << std::endl;
-    glViewport(0, 0, width, height);
-}
+    int gpuUsage = 0;
+    int vramUsage = 0;
 
-void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
-
-    if (firstMouse) {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
+    if (gpuFile.is_open()) {
+        gpuFile >> gpuUsage;
+        gpuFile.close();
+    } else {
+        std::cerr << "Impossible de lire l'utilisation GPU." << std::endl;
     }
 
-    float xoffset = xpos - lastX;
-    float yoffset =
-        lastY - ypos; // reversed since y-coordinates go from bottom to top
+    if (vramFile.is_open()) {
+        vramFile >> vramUsage;
+        vramFile.close();
+    } else {
+        std::cerr << "Impossible de lire l'utilisation mémoire." << std::endl;
+    }
 
-    lastX = xpos;
-    lastY = ypos;
-    /*
-        std::cout << "Offsets souris corrigés: X=" << xoffset << ", Y=" <<
-       yoffset
-                  << std::endl;*/
-    camera.mouseInput(xoffset, yoffset, true);
+    std::cout << "Utilisation GPU : " << gpuUsage << "%" << std::endl;
+    std::cout << "Utilisation VRAM : " << vramUsage << "%" << std::endl;
 }
 
 int main() {
@@ -112,7 +91,8 @@ int main() {
 
     // Définition du viewport
     glViewport(0, 0, 800, 600);
-    glfwSwapInterval(0);
+    // vsync de mmerde
+    //  glfwSwapInterval(0);
     glEnable(GL_DEPTH_TEST);
     Shader triShader("shader/tri_vert.vs", "shader/tri_frag.fs");
     TextureAtlas atlas("texture/atlas.png", 16);
@@ -125,7 +105,13 @@ int main() {
     triShader.use();
     triShader.setInt("atlasTexture", 0);
     Chunk chunk(atlas);
-    // Boucle de rendu
+
+    camera = new Camera(chunk, glm::vec3(2.0f, 40.0f, 3.0f));
+    /*
+    // sky nul
+    GLuint skyProgram = createSkyShaderProgram();
+    GLuint skyVAO = createSkyQuadVAO();
+    GLuint skyTexture = loadTexture("texture/sky.png"); */
     while (!glfwWindowShouldClose(window)) {
 
         // Gestion des entrées
@@ -134,20 +120,47 @@ int main() {
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+
+        camera->update(deltaTime);
         processInput(window);
         calculateFPS();
-
-        triShader.setMat4("view", camera.getViewMatrix());
+        triShader.setMat4("view", camera->getViewMatrix());
         triShader.setMat4("projection",
                           glm::perspective(glm::radians(45.0f), 800.0f / 600.0f,
                                            0.1f, 100.0f));
         // Effacer le buffer couleur
         glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // ff
+        /*
+        //  ==== Dessin du ciel (quad plein ecran) ====
+        glDisable(
+            GL_DEPTH_TEST); // pour être sûr que le quad soit derrière tout
+        glUseProgram(skyProgram);
+
+        // On bind la texture
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, skyTexture);
+
+        // On dit au shader que "skyTexture" = unité 0
+        GLint loc = glGetUniformLocation(skyProgram, "skyTexture");
+        glUniform1i(loc, 0);
+
+        // Dessiner le quad
+        glBindVertexArray(skyVAO);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glBindVertexArray(0);
+
+        glUseProgram(0);
+        glEnable(GL_DEPTH_TEST);
+*/
+        // fgf
+        // printGPUMemoryUsage();
         atlas.bind();
         triShader.use();
         chunk.draw(triShader);
         block.render(triShader, atlas);
+
         //  Échanger les buffers et traiter les événements
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -169,9 +182,62 @@ void calculateFPS() {
         std::chrono::duration<double, std::milli>(currentTime - lastTime)
             .count();
 
-    if (elapsedTime > 1000.0) { // Une seconde est passée
+    if (elapsedTime > 1000.0) {
         std::cout << "FPS: " << frameCount << std::endl;
         frameCount = 0;
         lastTime = currentTime;
     }
+}
+void processInput(GLFWwindow *window) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, true);
+    }
+    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+        // std::cout << "LINE\n" << std::endl;
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
+        // std::cout << "FILL" << std::endl;
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera->keyboardInput(FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera->keyboardInput(BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera->keyboardInput(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera->keyboardInput(RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        camera->jump();
+    }
+}
+
+void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+    std::cout << "Width: " << width << ", Height: " << height << std::endl;
+    glViewport(0, 0, width, height);
+}
+
+void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset =
+        lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+    lastX = xpos;
+    lastY = ypos;
+    /*
+        std::cout << "Offsets souris corrigés: X=" << xoffset << ", Y=" <<
+       yoffset
+                  << std::endl;*/
+    camera->mouseInput(xoffset, yoffset, true);
 }
