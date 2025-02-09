@@ -1,7 +1,7 @@
 #include "include/chunk.hpp"
 blockData g_blockRegistry[] = {
     {false, 0, 0, 0},   // AIR
-    {true, 35, 35, 35}, // GRASS
-    {true, 22, 22, 22}, // DIRT
-    {true, 26, 26, 26}, // STONE
+    {true, 92, 89, 89}, // GRASS
+    {true, 78, 78, 78}, // DIRT
+    {true, 0, 0, 0},    // STONE
 };

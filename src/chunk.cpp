@@ -49,7 +49,7 @@ bool Chunk::isFaceVisible(int x, int y, int z, Direction direction) {
     }
     blockType neighbor = blocks[nx][ny][nz];
     if (neighbor == AIR) {
-        std::cout << "AUIEZHEZRHUEZRUREHUÇERHU\n";
+        // std::cout << "AUIEZHEZRHUEZRUREHUÇERHU\n";
         return true;
     }
     return false;

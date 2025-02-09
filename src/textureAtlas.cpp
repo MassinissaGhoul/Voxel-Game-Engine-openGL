@@ -35,7 +35,7 @@ void TextureAtlas::bind() const { glBindTexture(GL_TEXTURE_2D, ID); }
 
 glm::vec4 TextureAtlas::getUVs(uint8_t textureIndex) const {
     int atlasWidth = width / 48;   // Nombre de colonnes
-    int atlasHeight = height / 45; // Nombre de lignes
+    int atlasHeight = height / 42; // Nombre de lignes
 
     int x = textureIndex % atlasWidth;
     int y = textureIndex / atlasWidth;
