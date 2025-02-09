@@ -4,15 +4,36 @@
 #include <cstdint>
 
 Chunk::Chunk(TextureAtlas &atlas) {
-    // Générer les buffers
 
     for (int x = 0; x < CHUNK_SIZE; x++) {
-        for (int y = 0; y < CHUNK_SIZE; y++) {
-            for (int z = 0; z < CHUNK_SIZE; z++) {
-                blocks[x][y][z] = STONE;
+        for (int z = 0; z < CHUNK_SIZE; z++) {
+
+            int baseHeight = CHUNK_SIZE / 2;
+            int variation = static_cast<int>(std::sin(x * 0.3f) *
+                                             std::cos(z * 0.3f) * 10.0f);
+            int height = baseHeight + variation;
+
+            if (height < 0)
+                height = 0;
+            if (height >= CHUNK_SIZE)
+                height = CHUNK_SIZE - 1;
+
+            for (int y = 0; y < CHUNK_SIZE; y++) {
+                if (y <= height) {
+
+                    if (y == height)
+                        blocks[x][y][z] = GRASS;
+                    else if (y >= height - 3)
+                        blocks[x][y][z] = DIRT;
+                    else
+                        blocks[x][y][z] = STONE;
+                } else {
+                    blocks[x][y][z] = AIR;
+                }
             }
         }
     }
+
     glGenVertexArrays(1, &this->VAO);
     glGenBuffers(1, &this->VBO);
     setupMesh(atlas);
