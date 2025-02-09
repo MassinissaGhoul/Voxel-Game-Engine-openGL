@@ -92,10 +92,11 @@ int main() {
     // Définition du viewport
     glViewport(0, 0, 800, 600);
     // vsync de mmerde
-    //  glfwSwapInterval(0);
+    glfwSwapInterval(0);
+    stbi_set_flip_vertically_on_load(true);
     glEnable(GL_DEPTH_TEST);
     Shader triShader("shader/tri_vert.vs", "shader/tri_frag.fs");
-    TextureAtlas atlas("texture/atlas.png", 16);
+    TextureAtlas atlas("texture/atlas.png", 48);
     Block block(glm::ivec3(0, 0, 0), DIRT, 2, atlas);
     std::cout << block.VAO << block.VBO;
     if (block.VAO == 0) {
@@ -107,6 +108,10 @@ int main() {
     Chunk chunk(atlas);
 
     camera = new Camera(chunk, glm::vec3(2.0f, 40.0f, 3.0f));
+
+    glm::mat4 model1 = glm::mat4(1.0f);
+    glm::mat4 model2 =
+        glm::translate(glm::mat4(1.0f), glm::vec3(32.0f, 32.0f, 32.0f));
     /*
     // sky nul
     GLuint skyProgram = createSkyShaderProgram();
@@ -155,10 +160,18 @@ int main() {
         glEnable(GL_DEPTH_TEST);
 */
         // fgf
+
         // printGPUMemoryUsage();
         atlas.bind();
         triShader.use();
-        chunk.draw(triShader);
+
+        chunk.draw(triShader, model1);
+        for (int i = 0; i < 10; i++) {
+            glm::vec3 chunkPosition(i * 32, 0.0f, 0.0f);
+
+            model2 = glm::translate(glm::mat4(1.0f), chunkPosition);
+            chunk.draw(triShader, model2);
+        }
         block.render(triShader, atlas);
 
         //  Échanger les buffers et traiter les événements

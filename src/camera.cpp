@@ -18,27 +18,33 @@ Camera::Camera(Chunk &chunkRef, glm::vec3 position, glm::vec3 up, float yaw,
 }
 
 void Camera::update(float deltaTime) {
-
     /*
-    std::cout << "Position: " << cameraPos.x << ", " << cameraPos.y << ", "
-              << cameraPos.z << std::endl;
-    std::cout << "Velocity: " << veloVec.x << ", " << veloVec.y << ", "
-              << veloVec.z << std::endl;
-    std::cout << "Grounded: " << (isGrounded ? "true" : "false") << std::endl;
-*/
-    std::cout << "pos cam ==\n  ";
-    std::cout << "x ==" << this->cameraPos.x << " \n y == " << this->cameraPos.y
-              << "\n z == " << this->cameraPos.z << std::endl;
-    /*
-        std::cout << "velovec == " << this->veloVec.x << this->veloVec.y
-                  << this->veloVec.z << std::endl;
-        std::cout << "gracity vec == " << this->gravityVec.x << this->veloVec.y
-                  << this->veloVec.z << std::endl;*/
+        int blockX = static_cast<int>(floor(cameraPos.x));
+        int blockY = static_cast<int>(floor(cameraPos.y));
+        int blockZ = static_cast<int>(floor(cameraPos.z));
+        if (chunk.blocks[blockX][blockY - 1][blockZ] == STONE) {
+            this->isGrounded = true;
+        }
+        if (blockY > 0 && chunk.blocks[blockX][blockY - 1][blockZ] == STONE) {
+            this->isGrounded = true;
+            this->cameraPos.y = blockY;
+            this->veloVec.y = 0.0f;
 
-    this->cameraPos = this->cameraPos + this->veloVec * deltaTime;
-    this->veloVec = this->veloVec + this->gravityVec * deltaTime;
+        } else {
+            this->isGrounded = false;
+            this->cameraPos = this->cameraPos + this->veloVec * deltaTime;
+            this->veloVec = this->veloVec + this->gravityVec * deltaTime;
+        }
+    */
 }
-void Camera::jump() { std::cout << "sauteur\n"; }
+void Camera::jump() {
+    if (this->isGrounded) {
+
+        this->veloVec.y = 10.0f;
+        this->isGrounded = false;
+        std::cout << "sauteur\n";
+    }
+}
 void Camera::keyboardInput(Camera_Movement direction, float deltaTime) {
     float velocity = this->movementSpeed * deltaTime;
     /*
@@ -55,14 +61,14 @@ void Camera::keyboardInput(Camera_Movement direction, float deltaTime) {
     case FORWARD:
         /*
     std::cout << "Mouvement détecté: AVANCE " << direction << std::endl;
-*/
+
         if (chunk.blocks[blockX + static_cast<int>(r * velocity)][blockY]
                         [blockZ] != STONE) {
             std::cout << "stone \n";
 
             // this->cameraPos += cameraFront * velocity;
         }
-
+*/
         this->cameraPos += cameraFront * velocity;
         break;
     case BACKWARD:

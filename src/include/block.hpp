@@ -8,11 +8,10 @@
 #include "textureAtlas.hpp"
 
 enum blockType : uint8_t {
-    DIRT,
-    GRASS,
-    STONE,
-    WOOD,
     AIR,
+    GRASS,
+    DIRT,
+    STONE,
 };
 
 class Block {

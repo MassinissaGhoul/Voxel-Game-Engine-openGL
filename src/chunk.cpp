@@ -28,6 +28,7 @@ bool Chunk::isFaceVisible(int x, int y, int z, Direction direction) {
     }
     blockType neighbor = blocks[nx][ny][nz];
     if (neighbor == AIR) {
+        std::cout << "AUIEZHEZRHUEZRUREHUÇERHU\n";
         return true;
     }
     return false;
@@ -172,10 +173,10 @@ void Chunk::setupMesh(TextureAtlas &atlas) {
                     float vMin = uvCoords.y;
                     float uMax = uvCoords.z;
                     float vMax = uvCoords.w;
-                    std::cout << x << y << z << std::endl;
-                    // Ajoute les 2 triangles (6 vertices) de cette face
-                    addFaceVertices(vertexData, x, y, z, dir, uMin, vMin, uMax,
-                                    vMax);
+                    // std::cout << x << y << z << std::endl;
+                    //  Ajoute les 2 triangles (6 vertices) de cette face
+                    addFaceVertices(vertexData, x + 1, y, z, dir, uMin, vMin,
+                                    uMax, vMax);
                 }
             }
         }
@@ -203,10 +204,16 @@ void Chunk::setupMesh(TextureAtlas &atlas) {
     totalVertices = static_cast<int>(vertexData.size() / 5);
 }
 
-void Chunk::draw(Shader &shader) {
+void Chunk::draw(Shader &shader, glm::mat4 model) {
     // si atlas.bind() is not in main put it here
     shader.use();
     glBindVertexArray(VAO);
+    /*
+        glm::mat4 model1 = glm::mat4(1.0f);
+        glm::mat4 model2 =
+            glm::translate(glm::mat4(1.0f), glm::vec3(32.0f, 0.0f, 0.0f));*/
+    shader.setMat4("model", model);
+    // shader.setMat4("model", model2);
     glDrawArrays(GL_TRIANGLES, 0, totalVertices);
     glBindVertexArray(0);
 }

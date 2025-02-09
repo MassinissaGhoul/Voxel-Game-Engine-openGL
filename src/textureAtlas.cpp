@@ -34,11 +34,15 @@ void TextureAtlas::load(const std::string &filePath) {
 void TextureAtlas::bind() const { glBindTexture(GL_TEXTURE_2D, ID); }
 
 glm::vec4 TextureAtlas::getUVs(uint8_t textureIndex) const {
-    int atlasSize = width / tileSize;
-    int x = textureIndex % atlasSize;
-    int y = textureIndex / atlasSize;
+    int atlasWidth = width / 48;   // Nombre de colonnes
+    int atlasHeight = height / 45; // Nombre de lignes
 
-    float uvSize = 1.0f / atlasSize;
-    return glm::vec4(x * uvSize, y * uvSize, (x + 1) * uvSize,
-                     (y + 1) * uvSize);
+    int x = textureIndex % atlasWidth;
+    int y = textureIndex / atlasWidth;
+
+    float uvWidth = 1.0f / atlasWidth;
+    float uvHeight = 1.0f / atlasHeight;
+
+    return glm::vec4(x * uvWidth, y * uvHeight, (x + 1) * uvWidth,
+                     (y + 1) * uvHeight);
 }

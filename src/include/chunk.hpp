@@ -41,7 +41,7 @@ class Chunk {
                              int z, Direction dir, float uMin, float vMin,
                              float uMax, float vMax);
         bool isFaceVisible(int x, int y, int z, Direction direction);
-        void draw(Shader &shader);
+        void draw(Shader &shader, glm::mat4 model);
 
     private:
         GLuint VAO, VBO, EBO, instanceVBO;
