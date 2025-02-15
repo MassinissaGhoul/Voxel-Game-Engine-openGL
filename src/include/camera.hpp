@@ -47,6 +47,7 @@ class Camera {
         void mouseInput(float xoffset, float yoffset,
                         GLboolean constraintPitch = true);
         void scrollInput(float soffset);
+        glm::vec3 getPosition() const;
 
     private:
         Chunk &chunk;

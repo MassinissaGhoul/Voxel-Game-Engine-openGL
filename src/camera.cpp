@@ -1,5 +1,6 @@
 #include "include/camera.hpp"
 #include "linking/include/glm/ext/quaternion_geometric.hpp"
+#include "linking/include/glm/ext/vector_float3.hpp"
 #include "linking/include/glm/geometric.hpp"
 
 Camera::Camera(Chunk &chunkRef, glm::vec3 position, glm::vec3 up, float yaw,
@@ -119,6 +120,8 @@ glm::mat4 Camera::getViewMatrix() {
     return glm::lookAt(this->cameraPos, this->cameraPos + this->cameraFront,
                        this->cameraUp);
 }
+
+glm::vec3 Camera::getPosition() const { return this->cameraPos; }
 
 void Camera::updateCameraVectors() {
     // Calcul de cameraFront à partir de Yaw et Pitch

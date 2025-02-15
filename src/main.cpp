@@ -6,6 +6,7 @@
 #include "include/shader.h"
 #include "include/textureAtlas.hpp"
 #include "linking/include/glm/ext/matrix_transform.hpp"
+#include "linking/include/glm/geometric.hpp"
 #include "linking/include/glm/glm.hpp"
 #include "linking/include/glm/gtc/matrix_transform.hpp"
 #include "linking/include/glm/gtc/type_ptr.hpp"
@@ -117,6 +118,8 @@ int main() {
     GLuint skyProgram = createSkyShaderProgram();
     GLuint skyVAO = createSkyQuadVAO();
     GLuint skyTexture = loadTexture("texture/sky.png"); */
+
+    float renderDistance = 50.0f;
     while (!glfwWindowShouldClose(window)) {
 
         // Gestion des entrées
@@ -161,17 +164,25 @@ int main() {
 */
         // fgf
 
-        // printGPUMemoryUsage();
+        printGPUMemoryUsage();
         atlas.bind();
         triShader.use();
 
         chunk.draw(triShader, model1);
-        for (int i = 0; i < 10; i++) {
-            glm::vec3 chunkPosition(i * 32, 0.0f, 0.0f);
+        glm::vec3 cameraPos = camera->getPosition();
+        for (int x = 0; x < 500; x++) {
+            for (int z = 0; z < 500; z++) {
+                glm::vec3 chunkPosition(x * 32, 0.0f, z * 32);
 
-            model2 = glm::translate(glm::mat4(1.0f), chunkPosition);
-            chunk.draw(triShader, model2);
+                float distance = glm::distance(chunkPosition, cameraPos);
+                if (distance < renderDistance) {
+                    glm::mat4 model2 =
+                        glm::translate(glm::mat4(1.0f), chunkPosition);
+                    chunk.draw(triShader, model2);
+                }
+            }
         }
+
         block.render(triShader, atlas);
 
         //  Échanger les buffers et traiter les événements
