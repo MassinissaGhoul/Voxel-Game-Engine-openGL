@@ -21,7 +21,8 @@ const unsigned int SCR_HEIGHT = 600;
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
-
+int maxVRAM = 0.0f;
+int maxGPU = 0.0f;
 Camera *camera;
 void processInput(GLFWwindow *window);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -53,6 +54,13 @@ void printGPUMemoryUsage() {
 
     std::cout << "Utilisation GPU : " << gpuUsage << "%" << std::endl;
     std::cout << "Utilisation VRAM : " << vramUsage << "%" << std::endl;
+    if (gpuUsage > maxGPU) {
+        maxGPU = gpuUsage;
+    }
+
+    if (vramUsage > maxVRAM) {
+        maxVRAM = vramUsage;
+    }
 }
 
 int main() {
@@ -119,7 +127,7 @@ int main() {
     GLuint skyVAO = createSkyQuadVAO();
     GLuint skyTexture = loadTexture("texture/sky.png"); */
 
-    float renderDistance = 50.0f;
+    float renderDistance = 900.0f;
     while (!glfwWindowShouldClose(window)) {
 
         // Gestion des entrées
@@ -164,16 +172,23 @@ int main() {
 */
         // fgf
 
-        printGPUMemoryUsage();
+        // printGPUMemoryUsage();
         atlas.bind();
         triShader.use();
 
         chunk.draw(triShader, model1);
         glm::vec3 cameraPos = camera->getPosition();
-        for (int x = 0; x < 500; x++) {
-            for (int z = 0; z < 500; z++) {
-                glm::vec3 chunkPosition(x * 32, 0.0f, z * 32);
+        int cameraChunkX = floor(cameraPos.x / 32);
+        int cameraChunkZ = floor(cameraPos.z / 32);
+        int minChunkX = cameraChunkX - renderDistance;
+        int maxChunkX = cameraChunkX + renderDistance;
+        int minChunkZ = cameraChunkZ - renderDistance;
+        int maxChunkZ = cameraChunkZ + renderDistance;
 
+        for (int x = minChunkX; x < maxChunkX; x++) {
+            for (int z = minChunkZ; z < maxChunkZ; z++) {
+                glm::vec3 chunkPosition(x * 32, 0.0f, z * 32);
+                // std::cout << minChunkX << "puiis " << minChunkZ << std::endl;
                 float distance = glm::distance(chunkPosition, cameraPos);
                 if (distance < renderDistance) {
                     glm::mat4 model2 =
@@ -189,7 +204,8 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
+    std::cout << "FINAL DATA GPU = maxgpu and max vram" << maxGPU << maxVRAM
+              << std::endl;
     // Nettoyage
     glfwDestroyWindow(window);
     glfwTerminate();
@@ -265,3 +281,27 @@ void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
                   << std::endl;*/
     camera->mouseInput(xoffset, yoffset, true);
 }
+/*
+void worldRender(glm::vec3 cameraPos, float renderDistance) {
+    int cameraChunkX = floor(cameraPos.x / 32);
+    int cameraChunkZ = floor(cameraPos.z / 32);
+    int minChunkX = cameraChunkX - static_cast<int>(renderDistance);
+    int maxChunkX = cameraChunkX + static_cast<int>(renderDistance);
+    int minChunkZ = cameraChunkZ - static_cast<int>(renderDistance);
+    int maxChunkZ = cameraChunkZ + static_cast<int>(renderDistance);
+
+    for (int x = minChunkX; x < maxChunkX; x++) {
+        for (int z = minChunkZ; z < maxChunkZ; z++) {
+            glm::vec3 chunkPosition(x * 32, 0.0f, z * 32);
+
+            float distance = glm::distance(chunkPosition, cameraPos);
+            if (distance < renderDistance) {
+                glm::mat4 model2 =
+                    glm::translate(glm::mat4(1.0f), chunkPosition);
+                chunk.draw(triShader, model2);
+            }
+        }
+    }
+}
+
+*/
