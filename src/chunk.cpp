@@ -1,6 +1,6 @@
 #include "include/chunk.hpp"
-#include "blockRegistry.cpp"
 #include "include/block.hpp"
+#include "include/blockRegistry.hpp"
 #include <cstdint>
 
 Chunk::Chunk(TextureAtlas &atlas) {
@@ -138,14 +138,35 @@ void Chunk::addFaceVertices(std::vector<float> &vertexData, int x, int y, int z,
     // A adapter pour avoir un rendu cohérent (UV + face culling)
 
     // Triangle 1 (P1, P2, P3)
-    addVertex(vertexData, P1.x, P1.y, P1.z, uMin, vMin);
-    addVertex(vertexData, P2.x, P2.y, P2.z, uMax, vMin);
-    addVertex(vertexData, P3.x, P3.y, P3.z, uMax, vMax);
+    //
+    if (dir == BOTTOM) {
+        // Triangle 1 (ordre inversé pour la face du bas)
+        addVertex(vertexData, P1.x, P1.y, P1.z, uMin,
+                  vMax); // Changé vMin à vMax
+        addVertex(vertexData, P2.x, P2.y, P2.z, uMax,
+                  vMax); // Changé vMin à vMax
+        addVertex(vertexData, P3.x, P3.y, P3.z, uMax,
+                  vMin); // Changé vMax à vMin
 
-    // Triangle 2 (P1, P3, P4)
-    addVertex(vertexData, P1.x, P1.y, P1.z, uMin, vMin);
-    addVertex(vertexData, P3.x, P3.y, P3.z, uMax, vMax);
-    addVertex(vertexData, P4.x, P4.y, P4.z, uMin, vMax);
+        // Triangle 2 (ordre inversé pour la face du bas)
+        addVertex(vertexData, P1.x, P1.y, P1.z, uMin,
+                  vMax); // Changé vMin à vMax
+        addVertex(vertexData, P3.x, P3.y, P3.z, uMax,
+                  vMin); // Changé vMax à vMin
+        addVertex(vertexData, P4.x, P4.y, P4.z, uMin,
+                  vMin); // Changé vMax à vMin
+    } else {
+        // Le code existant pour les autres faces...
+
+        addVertex(vertexData, P1.x, P1.y, P1.z, uMin, vMin);
+        addVertex(vertexData, P2.x, P2.y, P2.z, uMax, vMin);
+        addVertex(vertexData, P3.x, P3.y, P3.z, uMax, vMax);
+
+        // Triangle 2 (P1, P3, P4)
+        addVertex(vertexData, P1.x, P1.y, P1.z, uMin, vMin);
+        addVertex(vertexData, P3.x, P3.y, P3.z, uMax, vMax);
+        addVertex(vertexData, P4.x, P4.y, P4.z, uMin, vMax);
+    }
 }
 void Chunk::setupMesh(TextureAtlas &atlas) {
     std::vector<float> vertexData;
@@ -161,10 +182,16 @@ void Chunk::setupMesh(TextureAtlas &atlas) {
                     continue;
                 }
 
-                // Récupère la "définition" du bloc (opacité, uvTop, uvSide,
+                std::cout << "Position (" << x << "," << y << "," << z
+                          << ") Block type: " << (int)currentType
+                          << std::endl; // Récupère la "définition" du bloc
+                                        // (opacité, uvTop, uvSide,
                 // uvBottom)
                 const blockData &bData = g_blockRegistry[currentType];
-
+                std::cout << "Registry data - isOpaque: " << bData.isOpaque
+                          << ", uvTop: " << bData.uvTop
+                          << ", uvBottom: " << bData.uvBottom
+                          << ", uvSide: " << bData.uvSide << std::endl;
                 // Parcours les 6 directions
                 for (int d = 0; d < 6; d++) {
                     Direction dir = static_cast<Direction>(d);
@@ -179,9 +206,15 @@ void Chunk::setupMesh(TextureAtlas &atlas) {
                     switch (dir) {
                     case TOP:
                         uvIndex = bData.uvTop;
+                        // std::cout << uvIndex << "\n";
+
                         break;
                     case BOTTOM:
                         uvIndex = bData.uvBottom;
+                        // std::cout << uvIndex << "\n";
+                        std::cout
+                            << "Setting bottom uvIndex to: " << (int)uvIndex
+                            << std::endl;
                         break;
                     default:
                         uvIndex = bData.uvSide;
@@ -194,10 +227,11 @@ void Chunk::setupMesh(TextureAtlas &atlas) {
                     float vMin = uvCoords.y;
                     float uMax = uvCoords.z;
                     float vMax = uvCoords.w;
+
                     // std::cout << x << y << z << std::endl;
                     //  Ajoute les 2 triangles (6 vertices) de cette face
-                    addFaceVertices(vertexData, x + 1, y, z, dir, uMin, vMin,
-                                    uMax, vMax);
+                    addFaceVertices(vertexData, x, y, z, dir, uMin, vMin, uMax,
+                                    vMax);
                 }
             }
         }
