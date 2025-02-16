@@ -127,7 +127,7 @@ int main() {
     GLuint skyVAO = createSkyQuadVAO();
     GLuint skyTexture = loadTexture("texture/sky.png"); */
 
-    float renderDistance = 200.0f;
+    float renderDistance = 10.0f;
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -188,7 +188,7 @@ int main() {
 
         for (int x = minChunkX; x < maxChunkX; x++) {
             for (int z = minChunkZ; z < maxChunkZ; z++) {
-                glm::vec3 chunkPosition(x * 32, 0.0f, z * 32);
+                glm::vec3 chunkPosition(x * 32 + 16, 0.0f, z * 32 + 16);
                 // std::cout << minChunkX << "puiis " << minChunkZ << std::endl;
                 float distance = glm::distance(chunkPosition, cameraPos);
                 if (distance < renderDistance * 32) {
