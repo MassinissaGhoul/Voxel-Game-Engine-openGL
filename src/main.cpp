@@ -127,7 +127,8 @@ int main() {
     GLuint skyVAO = createSkyQuadVAO();
     GLuint skyTexture = loadTexture("texture/sky.png"); */
 
-    float renderDistance = 900.0f;
+    float renderDistance = 200.0f;
+
     while (!glfwWindowShouldClose(window)) {
 
         // Gestion des entrées
@@ -190,7 +191,7 @@ int main() {
                 glm::vec3 chunkPosition(x * 32, 0.0f, z * 32);
                 // std::cout << minChunkX << "puiis " << minChunkZ << std::endl;
                 float distance = glm::distance(chunkPosition, cameraPos);
-                if (distance < renderDistance) {
+                if (distance < renderDistance * 32) {
                     glm::mat4 model2 =
                         glm::translate(glm::mat4(1.0f), chunkPosition);
                     chunk.draw(triShader, model2);
