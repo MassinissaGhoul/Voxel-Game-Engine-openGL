@@ -15,6 +15,8 @@ Texture:
 
 
 in Future:
+core feature: 
+          -add Gamble
 Shader Class: 
     - Add Destructor
     - Make it more futur proof (main function is too big)
