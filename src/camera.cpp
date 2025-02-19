@@ -37,6 +37,8 @@ void Camera::update(float deltaTime) {
             this->veloVec = this->veloVec + this->gravityVec * deltaTime;
         }
     */
+
+    // rayCast();
 }
 void Camera::jump() {
     if (this->isGrounded) {
@@ -142,4 +144,29 @@ void Camera::updateCameraVectors() {
     /*
     std::cout << "Vecteurs mis à jour - Front: " << cameraFront.x << ", "
               << cameraFront.y << ", " << cameraFront.z << std::endl; */
+}
+
+void Camera::rayCast() {
+
+    glm::vec3 ray; // this->cameraPos + (this->cameraFront * i);
+    bool hit = false;
+    float maxDistance = 6.0f;
+    float stepDistance = 0.3f;
+    if (!hit) {
+        for (float distance = 1; distance < maxDistance;
+             distance += stepDistance) {
+            ray = this->cameraPos + (this->cameraFront * distance);
+            int blockX = static_cast<int>(ray.x);
+            int blockY = static_cast<int>(ray.y);
+            int blockZ = static_cast<int>(ray.z);
+            if (chunk.blocks[blockX][blockY][blockZ] != AIR) {
+                hit = true;
+
+                std::cout << " DESTRUCTION BLOC EN " << "x = " << blockX
+                          << " y = " << blockY << "z = " << blockZ << std::endl;
+                chunk.destroy(blockX, blockY, blockZ);
+            }
+        }
+    }
+    hit = false;
 }

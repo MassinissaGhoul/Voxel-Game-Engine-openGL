@@ -32,7 +32,7 @@ class Chunk {
 
     public:
         static const size_t CHUNK_SIZE = 32;
-
+        TextureAtlas &atlasChunk;
         Chunk(TextureAtlas &atlas);
         ~Chunk();
         inline void addVertex(std::vector<float> &vertexData, float px,
@@ -42,6 +42,8 @@ class Chunk {
                              float uMax, float vMax);
         bool isFaceVisible(int x, int y, int z, Direction direction);
         void draw(Shader &shader, glm::mat4 model);
+        void destroy(int x, int y, int z);
+        void rebuild();
 
     private:
         GLuint VAO, VBO, EBO, instanceVBO;

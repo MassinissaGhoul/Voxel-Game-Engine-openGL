@@ -48,6 +48,7 @@ class Camera {
                         GLboolean constraintPitch = true);
         void scrollInput(float soffset);
         glm::vec3 getPosition() const;
+        void rayCast();
 
     private:
         Chunk &chunk;

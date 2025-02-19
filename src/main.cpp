@@ -173,7 +173,7 @@ int main() {
 */
         // fgf
 
-        // printGPUMemoryUsage();
+        //       printGPUMemoryUsage();
         atlas.bind();
         triShader.use();
 
@@ -253,6 +253,8 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         camera->jump();
     }
+    if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+        camera->rayCast();
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {

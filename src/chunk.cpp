@@ -3,8 +3,8 @@
 #include "include/blockRegistry.hpp"
 #include <cstdint>
 
-Chunk::Chunk(TextureAtlas &atlas) {
-
+Chunk::Chunk(TextureAtlas &atlas)
+    : atlasChunk(atlas) {
     for (int x = 0; x < CHUNK_SIZE; x++) {
         for (int z = 0; z < CHUNK_SIZE; z++) {
 
@@ -36,7 +36,7 @@ Chunk::Chunk(TextureAtlas &atlas) {
 
     glGenVertexArrays(1, &this->VAO);
     glGenBuffers(1, &this->VBO);
-    setupMesh(atlas);
+    setupMesh(this->atlasChunk);
 }
 bool Chunk::isFaceVisible(int x, int y, int z, Direction direction) {
     auto [dx, dy, dz] = directionOffsets[static_cast<int>(direction)];
@@ -139,6 +139,7 @@ void Chunk::addFaceVertices(std::vector<float> &vertexData, int x, int y, int z,
 
     // Triangle 1 (P1, P2, P3)
     //
+    /*
     if (dir == BOTTOM) {
         // Triangle 1 (ordre inversé pour la face du bas)
         addVertex(vertexData, P1.x, P1.y, P1.z, uMin,
@@ -155,18 +156,17 @@ void Chunk::addFaceVertices(std::vector<float> &vertexData, int x, int y, int z,
                   vMin); // Changé vMax à vMin
         addVertex(vertexData, P4.x, P4.y, P4.z, uMin,
                   vMin); // Changé vMax à vMin
-    } else {
-        // Le code existant pour les autres faces...
+    } else {*/
+    // Le code existant pour les autres faces...
 
-        addVertex(vertexData, P1.x, P1.y, P1.z, uMin, vMin);
-        addVertex(vertexData, P2.x, P2.y, P2.z, uMax, vMin);
-        addVertex(vertexData, P3.x, P3.y, P3.z, uMax, vMax);
+    addVertex(vertexData, P1.x, P1.y, P1.z, uMin, vMin);
+    addVertex(vertexData, P2.x, P2.y, P2.z, uMax, vMin);
+    addVertex(vertexData, P3.x, P3.y, P3.z, uMax, vMax);
 
-        // Triangle 2 (P1, P3, P4)
-        addVertex(vertexData, P1.x, P1.y, P1.z, uMin, vMin);
-        addVertex(vertexData, P3.x, P3.y, P3.z, uMax, vMax);
-        addVertex(vertexData, P4.x, P4.y, P4.z, uMin, vMax);
-    }
+    // Triangle 2 (P1, P3, P4)
+    addVertex(vertexData, P1.x, P1.y, P1.z, uMin, vMin);
+    addVertex(vertexData, P3.x, P3.y, P3.z, uMax, vMax);
+    addVertex(vertexData, P4.x, P4.y, P4.z, uMin, vMax);
 }
 void Chunk::setupMesh(TextureAtlas &atlas) {
     std::vector<float> vertexData;
@@ -181,17 +181,18 @@ void Chunk::setupMesh(TextureAtlas &atlas) {
                 if (currentType == AIR) {
                     continue;
                 }
-
+                /*
                 std::cout << "Position (" << x << "," << y << "," << z
                           << ") Block type: " << (int)currentType
                           << std::endl; // Récupère la "définition" du bloc
                                         // (opacité, uvTop, uvSide,
-                // uvBottom)
+                // uvBottom) */
                 const blockData &bData = g_blockRegistry[currentType];
+                /*
                 std::cout << "Registry data - isOpaque: " << bData.isOpaque
                           << ", uvTop: " << bData.uvTop
                           << ", uvBottom: " << bData.uvBottom
-                          << ", uvSide: " << bData.uvSide << std::endl;
+                          << ", uvSide: " << bData.uvSide << std::endl;*/
                 // Parcours les 6 directions
                 for (int d = 0; d < 6; d++) {
                     Direction dir = static_cast<Direction>(d);
@@ -212,9 +213,10 @@ void Chunk::setupMesh(TextureAtlas &atlas) {
                     case BOTTOM:
                         uvIndex = bData.uvBottom;
                         // std::cout << uvIndex << "\n";
-                        std::cout
-                            << "Setting bottom uvIndex to: " << (int)uvIndex
-                            << std::endl;
+                        /*
+                    std::cout
+                        << "Setting bottom uvIndex to: " << (int)uvIndex
+                        << std::endl;*/
                         break;
                     default:
                         uvIndex = bData.uvSide;
@@ -272,6 +274,24 @@ void Chunk::draw(Shader &shader, glm::mat4 model) {
     glDrawArrays(GL_TRIANGLES, 0, totalVertices);
     glBindVertexArray(0);
 }
+
+void Chunk::destroy(int x, int y, int z) {
+    this->blocks[x][y][z] = AIR;
+    rebuild();
+}
+
+void Chunk::rebuild() {
+    glDeleteBuffers(1, &this->VBO);
+    glDeleteVertexArrays(1, &this->VAO);
+
+    // Generate new buffers
+    glGenVertexArrays(1, &this->VAO);
+    glGenBuffers(1, &this->VBO);
+
+    // Rebuild mesh with existing atlas
+    setupMesh(this->atlasChunk);
+}
+
 Chunk::~Chunk() {
 
     glDeleteBuffers(1, &this->VBO);
