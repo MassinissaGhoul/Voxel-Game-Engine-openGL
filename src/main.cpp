@@ -15,8 +15,8 @@
 #include <chrono>
 #include <iostream>
 void calculateFPS();
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+unsigned int SCR_WIDTH = 800;
+unsigned int SCR_HEIGHT = 600;
 // Camera camera(glm::vec3(0.0f, 8.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
@@ -143,7 +143,9 @@ int main() {
         calculateFPS();
         triShader.setMat4("view", camera->getViewMatrix());
         triShader.setMat4("projection",
-                          glm::perspective(glm::radians(45.0f), 800.0f / 600.0f,
+                          glm::perspective(glm::radians(45.0f),
+                                           static_cast<float>(SCR_WIDTH) /
+                                               static_cast<float>(SCR_HEIGHT),
                                            0.1f, 100.0f));
         // Effacer le buffer couleur
         glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
@@ -253,11 +255,15 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         camera->jump();
     }
-    if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS ||
+        glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
         camera->rayCast();
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+    SCR_HEIGHT = height;
+    SCR_WIDTH = width;
     std::cout << "Width: " << width << ", Height: " << height << std::endl;
     glViewport(0, 0, width, height);
 }
