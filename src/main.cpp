@@ -180,6 +180,7 @@ int main() {
         triShader.use();
 
         chunk.draw(triShader, model1);
+        /*
         glm::vec3 cameraPos = camera->getPosition();
         int cameraChunkX = floor(cameraPos.x / 32);
         int cameraChunkZ = floor(cameraPos.z / 32);
@@ -199,7 +200,7 @@ int main() {
                     chunk.draw(triShader, model2);
                 }
             }
-        }
+        }*/
 
         block.render(triShader, atlas);
 
@@ -257,7 +258,11 @@ void processInput(GLFWwindow *window) {
     }
     if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS ||
         glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-        camera->rayCast();
+        camera->rayCast(1);
+    }
+    if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS ||
+        glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+        camera->rayCast(0);
     }
 }
 

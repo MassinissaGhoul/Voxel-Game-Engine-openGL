@@ -16,6 +16,8 @@ set(SOURCES
 # Créer l'exécutable
 add_executable(OpenGLWindow ${SOURCES})
 
+
+add_compile_options(-Wall -Wextra -Wpedantic -Werror -Wshadow -Wconversion -Wsign-conversion -Wfloat-equal -Wformat=2)
 # Inclure les headers
 target_include_directories(OpenGLWindow PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}

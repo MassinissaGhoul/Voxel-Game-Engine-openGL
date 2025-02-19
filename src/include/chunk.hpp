@@ -42,7 +42,8 @@ class Chunk {
                              float uMax, float vMax);
         bool isFaceVisible(int x, int y, int z, Direction direction);
         void draw(Shader &shader, glm::mat4 model);
-        void destroy(int x, int y, int z);
+        void action(int x, int y, int z, int action);
+
         void rebuild();
 
     private:

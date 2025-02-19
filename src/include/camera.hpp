@@ -48,7 +48,7 @@ class Camera {
                         GLboolean constraintPitch = true);
         void scrollInput(float soffset);
         glm::vec3 getPosition() const;
-        void rayCast();
+        void rayCast(int option); // 0 == place block 1 == destroy block
 
     private:
         Chunk &chunk;

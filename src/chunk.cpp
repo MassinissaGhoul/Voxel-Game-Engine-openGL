@@ -275,8 +275,23 @@ void Chunk::draw(Shader &shader, glm::mat4 model) {
     glBindVertexArray(0);
 }
 
-void Chunk::destroy(int x, int y, int z) {
-    this->blocks[x][y][z] = AIR;
+void Chunk::action(int x, int y, int z, int option) {
+
+    if (x >= 0 && x < this->CHUNK_SIZE && y >= 0 && y < this->CHUNK_SIZE &&
+        z >= 0 && z < this->CHUNK_SIZE) {
+
+        switch (option) {
+        case 0:
+            this->blocks[x][y][z] = STONE;
+            break;
+        case 1:
+            this->blocks[x][y][z] = AIR;
+            break;
+        default:
+            break;
+        }
+    }
+
     rebuild();
 }
 
