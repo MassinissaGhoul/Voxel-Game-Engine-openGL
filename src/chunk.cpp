@@ -2,6 +2,7 @@
 #include "include/block.hpp"
 #include "include/blockRegistry.hpp"
 #include <cstdint>
+#include <iterator>
 
 Chunk::Chunk(TextureAtlas &atlas)
     : atlasChunk(atlas) {
@@ -282,10 +283,14 @@ void Chunk::action(int x, int y, int z, int option) {
 
         switch (option) {
         case 0:
-            this->blocks[x][y][z] = STONE;
+            this->blocks[x][y + 1][z] = STONE;
             break;
         case 1:
             this->blocks[x][y][z] = AIR;
+            break;
+        case 3:
+            std::cout << "dans le case" << std::endl;
+            this->blocks[x][y][z] = STONE;
             break;
         default:
             break;

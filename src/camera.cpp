@@ -2,7 +2,7 @@
 #include "linking/include/glm/ext/quaternion_geometric.hpp"
 #include "linking/include/glm/ext/vector_float3.hpp"
 #include "linking/include/glm/geometric.hpp"
-
+#include <algorithm>
 Camera::Camera(Chunk &chunkRef, glm::vec3 position, glm::vec3 up, float yaw,
                float pitch)
     : chunk(chunkRef) {
@@ -146,30 +146,72 @@ void Camera::updateCameraVectors() {
               << cameraFront.y << ", " << cameraFront.z << std::endl; */
 }
 
+void Camera::placeBlock(int blockX, int blockY, int blockZ, glm::vec3 face) {
+    // Prenons la composante avec la plus grande valeur absolue
+    float absX = abs(face.x);
+    float absY = abs(face.y);
+    float absZ = abs(face.z);
+
+    std::cout << "Face values: " << face.x << ", " << face.y << ", " << face.z
+              << std::endl;
+
+    // Si X a la plus grande valeur absolue
+    if (absX > absY && absX > absZ) {
+        std::cout << "X dominant" << std::endl;
+        if (face.x > 0) {
+            chunk.action(blockX + 1, blockY, blockZ, 3);
+        } else {
+            chunk.action(blockX - 1, blockY, blockZ, 3);
+        }
+    }
+    // Si Y a la plus grande valeur absolue
+    else if (absY > absX && absY > absZ) {
+        std::cout << "Y dominant" << std::endl;
+        if (face.y > 0) {
+            chunk.action(blockX, blockY + 1, blockZ, 3);
+        } else {
+            chunk.action(blockX, blockY - 1, blockZ, 3);
+        }
+    }
+    // Si Z a la plus grande valeur absolue
+    else if (absZ > absX && absZ > absY) {
+        std::cout << "Z dominant" << std::endl;
+        if (face.z > 0) {
+            std::cout << "en pos \n";
+            chunk.action(blockX, blockY, blockZ + 1, 3);
+        } else {
+
+            std::cout << "en enga \n";
+            chunk.action(blockX, blockY, blockZ - 1, 3);
+        }
+    } else {
+        std::cout << "No clear dominant direction!" << std::endl;
+    }
+}
 void Camera::rayCast(int option) {
-
-    glm::vec3 ray; // this->cameraPos + (this->cameraFront * i);
-    bool hit = false;
-    float maxDistance = 6.0f;
-    float stepDistance = 0.3f;
-
-    for (float distance = 1; distance < maxDistance; distance += stepDistance) {
+    glm::vec3 ray;
+    const float maxDistance = 6.0f;
+    const float stepDistance = 0.1f;
+    for (float distance = 0; distance < maxDistance; distance += stepDistance) {
         ray = this->cameraPos + (this->cameraFront * distance);
-        int blockX = static_cast<int>(ray.x);
-        int blockY = static_cast<int>(ray.y);
-        int blockZ = static_cast<int>(ray.z);
+        int blockX = static_cast<int>(floor(ray.x));
+        int blockY = static_cast<int>(floor(ray.y));
+        int blockZ = static_cast<int>(floor(ray.z));
+
         if (blockX >= 0 && blockX < chunk.CHUNK_SIZE && blockY >= 0 &&
             blockY < chunk.CHUNK_SIZE && blockZ >= 0 &&
             blockZ < chunk.CHUNK_SIZE) {
-            if (chunk.blocks[blockX][blockY][blockZ] != AIR) {
-                hit = true;
 
-                std::cout << " DESTRUCTION BLOC EN " << "x = " << blockX
-                          << " y = " << blockY << "z = " << blockZ << std::endl;
-                chunk.action(blockX, blockY, blockZ, option);
+            if (chunk.blocks[blockX][blockY][blockZ] != AIR) {
+                if (option == 0) {
+                    glm::vec3 face = (ray - glm::vec3(blockX, blockY, blockZ)) -
+                                     glm::vec3(0.5f);
+                    placeBlock(blockX, blockY, blockZ, face);
+                } else {
+                    chunk.action(blockX, blockY, blockZ, option);
+                }
+                return;
             }
         }
     }
-
-    hit = false;
 }
