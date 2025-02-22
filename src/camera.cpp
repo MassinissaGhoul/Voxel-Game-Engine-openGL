@@ -147,42 +147,28 @@ void Camera::updateCameraVectors() {
 }
 
 void Camera::placeBlock(int blockX, int blockY, int blockZ, glm::vec3 face) {
-    // Prenons la composante avec la plus grande valeur absolue
     float absX = abs(face.x);
     float absY = abs(face.y);
     float absZ = abs(face.z);
 
-    std::cout << "Face values: " << face.x << ", " << face.y << ", " << face.z
-              << std::endl;
-
-    // Si X a la plus grande valeur absolue
     if (absX > absY && absX > absZ) {
-        std::cout << "X dominant" << std::endl;
         if (face.x > 0) {
-            chunk.action(blockX + 1, blockY, blockZ, 3);
+            chunk.action(blockX + 1, blockY, blockZ, 0);
         } else {
-            chunk.action(blockX - 1, blockY, blockZ, 3);
+            chunk.action(blockX - 1, blockY, blockZ, 0);
         }
-    }
-    // Si Y a la plus grande valeur absolue
-    else if (absY > absX && absY > absZ) {
-        std::cout << "Y dominant" << std::endl;
+    } else if (absY > absX && absY > absZ) {
         if (face.y > 0) {
-            chunk.action(blockX, blockY + 1, blockZ, 3);
+            chunk.action(blockX, blockY + 1, blockZ, 0);
         } else {
-            chunk.action(blockX, blockY - 1, blockZ, 3);
+            chunk.action(blockX, blockY - 1, blockZ, 0);
         }
-    }
-    // Si Z a la plus grande valeur absolue
-    else if (absZ > absX && absZ > absY) {
-        std::cout << "Z dominant" << std::endl;
+    } else if (absZ > absX && absZ > absY) {
         if (face.z > 0) {
-            std::cout << "en pos \n";
-            chunk.action(blockX, blockY, blockZ + 1, 3);
+            chunk.action(blockX, blockY, blockZ + 1, 0);
         } else {
 
-            std::cout << "en enga \n";
-            chunk.action(blockX, blockY, blockZ - 1, 3);
+            chunk.action(blockX, blockY, blockZ - 1, 0);
         }
     } else {
         std::cout << "No clear dominant direction!" << std::endl;

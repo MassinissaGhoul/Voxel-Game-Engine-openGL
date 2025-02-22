@@ -283,7 +283,7 @@ void Chunk::action(int x, int y, int z, int option) {
 
         switch (option) {
         case 0:
-            this->blocks[x][y + 1][z] = STONE;
+            this->blocks[x][y][z] = STONE;
             break;
         case 1:
             this->blocks[x][y][z] = AIR;
