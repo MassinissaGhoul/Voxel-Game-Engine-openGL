@@ -10,6 +10,7 @@ set(SOURCES
     chunk.cpp
     loadSky.cpp
     blockRegistry.cpp
+    world.cpp
     linking/lib/stb.cpp
 )
 

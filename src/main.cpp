@@ -14,6 +14,7 @@
 #include <GLFW/glfw3.h>
 #include <chrono>
 #include <iostream>
+#include "include/world.hpp"
 void calculateFPS();
 unsigned int SCR_WIDTH = 800;
 unsigned int SCR_HEIGHT = 600;
@@ -129,6 +130,11 @@ int main() {
 
     float renderDistance = 10.0f;
 
+    World world(atlas, *camera);
+    size_t data;
+    data = world.hashCord(13, 67);
+    std::cout << data << std::endl;
+
     while (!glfwWindowShouldClose(window)) {
 
         // Gestion des entrées
@@ -180,6 +186,7 @@ int main() {
         triShader.use();
 
         chunk.draw(triShader, model1);
+
         /*
         glm::vec3 cameraPos = camera->getPosition();
         int cameraChunkX = floor(cameraPos.x / 32);

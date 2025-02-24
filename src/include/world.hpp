@@ -1,12 +1,26 @@
 #ifndef WORLD_HPP
 #define WORLD_HPP
+#include <unordered_map>
+#include "chunk.hpp"
+#include "camera.hpp"
 
-class world {
-    public:
-        world();
-        ~world();
+class Chunk;
+class Camera;
 
-    private:
+class World
+{
+public:
+    size_t hashCord(int x, int z);
+
+    std::unordered_map<size_t, std::unique_ptr<Chunk>> worldMap;
+    std::unordered_map<size_t, Chunk *> worldLoaded;
+    void update();
+    World(TextureAtlas &atlas, Camera* cameraRef);
+    ~World();
+
+private:
+    Camera *cameraRef;
+    TextureAtlas &atlas;
 };
 
 #endif
