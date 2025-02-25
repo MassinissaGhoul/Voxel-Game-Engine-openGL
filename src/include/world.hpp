@@ -14,12 +14,14 @@ public:
 
     std::unordered_map<size_t, std::unique_ptr<Chunk>> worldMap;
     std::unordered_map<size_t, Chunk *> worldLoaded;
-    void update();
+    void update(Shader &shader);
+    void render(Shader &shader);
     World(TextureAtlas &atlas, Camera* cameraRef);
     ~World();
 
 private:
-    Camera *cameraRef;
+
+    Camera* cameraRef;
     TextureAtlas &atlas;
 };
 
