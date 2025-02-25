@@ -30,7 +30,7 @@ void World::update(Shader &shader)
             {
                 std::cout << x << "puiis " << z << std::endl;
 
-                Chunk chunk(atlas);
+                //Chunk chunk(atlas);
                 worldMap[key] = std::make_unique<Chunk>(this->atlas);
                 std::cout << worldMap[key] << std::endl;
             }
