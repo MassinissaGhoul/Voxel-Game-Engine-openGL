@@ -5,9 +5,12 @@
 #include <iterator>
 
 Chunk::Chunk(TextureAtlas &atlas)
-    : atlasChunk(atlas) {
-    for (int x = 0; x < CHUNK_SIZE; x++) {
-        for (int z = 0; z < CHUNK_SIZE; z++) {
+    : atlasChunk(atlas)
+{
+    for (int x = 0; x < CHUNK_SIZE; x++)
+    {
+        for (int z = 0; z < CHUNK_SIZE; z++)
+        {
 
             int baseHeight = CHUNK_SIZE / 2;
             int variation = static_cast<int>(std::sin(x * 0.3f) *
@@ -19,8 +22,10 @@ Chunk::Chunk(TextureAtlas &atlas)
             if (height >= CHUNK_SIZE)
                 height = CHUNK_SIZE - 1;
 
-            for (int y = 0; y < CHUNK_SIZE; y++) {
-                if (y <= height) {
+            for (int y = 0; y < CHUNK_SIZE; y++)
+            {
+                if (y <= height)
+                {
 
                     if (y == height)
                         blocks[x][y][z] = GRASS;
@@ -28,7 +33,9 @@ Chunk::Chunk(TextureAtlas &atlas)
                         blocks[x][y][z] = DIRT;
                     else
                         blocks[x][y][z] = STONE;
-                } else {
+                }
+                else
+                {
                     blocks[x][y][z] = AIR;
                 }
             }
@@ -39,17 +46,20 @@ Chunk::Chunk(TextureAtlas &atlas)
     glGenBuffers(1, &this->VBO);
     setupMesh(this->atlasChunk);
 }
-bool Chunk::isFaceVisible(int x, int y, int z, Direction direction) {
+bool Chunk::isFaceVisible(int x, int y, int z, Direction direction)
+{
     auto [dx, dy, dz] = directionOffsets[static_cast<int>(direction)];
     int nx = x + dx;
     int ny = y + dy;
     int nz = z + dz;
     if (nx < 0 || nx >= this->CHUNK_SIZE || ny < 0 || ny >= this->CHUNK_SIZE ||
-        nz < 0 || nz >= this->CHUNK_SIZE) {
+        nz < 0 || nz >= this->CHUNK_SIZE)
+    {
         return true;
     }
     blockType neighbor = blocks[nx][ny][nz];
-    if (neighbor == AIR) {
+    if (neighbor == AIR)
+    {
         // std::cout << "AUIEZHEZRHUEZRUREHUÇERHU\n";
         return true;
     }
@@ -57,7 +67,8 @@ bool Chunk::isFaceVisible(int x, int y, int z, Direction direction) {
 }
 
 inline void Chunk::addVertex(std::vector<float> &vertexData, float px, float py,
-                             float pz, float u, float v) {
+                             float pz, float u, float v)
+{
     vertexData.push_back(px);
     vertexData.push_back(py);
     vertexData.push_back(pz);
@@ -66,7 +77,8 @@ inline void Chunk::addVertex(std::vector<float> &vertexData, float px, float py,
 }
 void Chunk::addFaceVertices(std::vector<float> &vertexData, int x, int y, int z,
                             Direction dir, float uMin, float vMin, float uMax,
-                            float vMax) {
+                            float vMax)
+{
     // On calcule les 4 points de la face en fonction de la direction
     // P1, P2, P3, P4 (x,y,z)
     // +2 triangles (6 vertices au total).
@@ -78,7 +90,8 @@ void Chunk::addFaceVertices(std::vector<float> &vertexData, int x, int y, int z,
     // => On place le bloc dans [x, x+1], [y, y+1], [z, z+1]
     glm::vec3 P1, P2, P3, P4;
 
-    switch (dir) {
+    switch (dir)
+    {
     case TOP:
         // plan y+1
         // P1 = (x,   y+1, z)
@@ -169,17 +182,22 @@ void Chunk::addFaceVertices(std::vector<float> &vertexData, int x, int y, int z,
     addVertex(vertexData, P3.x, P3.y, P3.z, uMax, vMax);
     addVertex(vertexData, P4.x, P4.y, P4.z, uMin, vMax);
 }
-void Chunk::setupMesh(TextureAtlas &atlas) {
+void Chunk::setupMesh(TextureAtlas &atlas)
+{
     std::vector<float> vertexData;
     vertexData.reserve(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 6 * 6 * 5);
     // Réserve un maximum possible (optionnel)
 
-    for (int x = 0; x < CHUNK_SIZE; x++) {
-        for (int y = 0; y < CHUNK_SIZE; y++) {
-            for (int z = 0; z < CHUNK_SIZE; z++) {
+    for (int x = 0; x < CHUNK_SIZE; x++)
+    {
+        for (int y = 0; y < CHUNK_SIZE; y++)
+        {
+            for (int z = 0; z < CHUNK_SIZE; z++)
+            {
                 blockType currentType = blocks[x][y][z];
                 // On ne dessine pas l'AIR
-                if (currentType == AIR) {
+                if (currentType == AIR)
+                {
                     continue;
                 }
                 /*
@@ -195,17 +213,20 @@ void Chunk::setupMesh(TextureAtlas &atlas) {
                           << ", uvBottom: " << bData.uvBottom
                           << ", uvSide: " << bData.uvSide << std::endl;*/
                 // Parcours les 6 directions
-                for (int d = 0; d < 6; d++) {
+                for (int d = 0; d < 6; d++)
+                {
                     Direction dir = static_cast<Direction>(d);
 
                     // Vérifie si la face est visible
-                    if (!isFaceVisible(x, y, z, dir)) {
+                    if (!isFaceVisible(x, y, z, dir))
+                    {
                         continue;
                     }
 
                     // Choisit quel index UV on utilise (top/bottom/side)
                     uint8_t uvIndex = 0;
-                    switch (dir) {
+                    switch (dir)
+                    {
                     case TOP:
                         uvIndex = bData.uvTop;
                         // std::cout << uvIndex << "\n";
@@ -262,7 +283,8 @@ void Chunk::setupMesh(TextureAtlas &atlas) {
     totalVertices = static_cast<int>(vertexData.size() / 5);
 }
 
-void Chunk::draw(Shader &shader, glm::mat4 model) {
+void Chunk::draw(Shader &shader, glm::mat4 model)
+{
     // si atlas.bind() is not in main put it here
     shader.use();
     glBindVertexArray(VAO);
@@ -276,13 +298,23 @@ void Chunk::draw(Shader &shader, glm::mat4 model) {
     glBindVertexArray(0);
 }
 
-void Chunk::action(int x, int y, int z, int option) {
+void Chunk::action(int x, int y, int z, int option)
+{
+
+    std::cout << "Action called with coordinates: "
+              << "x=" << x << ", y=" << y << ", z=" << z
+              << ", option=" << option << std::endl;
 
     if (x >= 0 && x < this->CHUNK_SIZE && y >= 0 && y < this->CHUNK_SIZE &&
-        z >= 0 && z < this->CHUNK_SIZE) {
-
-        switch (option) {
+        z >= 0 && z < this->CHUNK_SIZE)
+    {
+        std::cout << "Current block state before: "
+                  << this->blocks[x][y][z] << std::endl;
+        switch (option)
+        {
         case 0:
+            std::cout << "Block set to: "
+                      << this->blocks[x][y][z] << std::endl;
             this->blocks[x][y][z] = STONE;
             break;
         case 1:
@@ -300,7 +332,9 @@ void Chunk::action(int x, int y, int z, int option) {
     rebuild();
 }
 
-void Chunk::rebuild() {
+void Chunk::rebuild()
+{
+    std::cout << "rebuilddddddddddd \n";
     glDeleteBuffers(1, &this->VBO);
     glDeleteVertexArrays(1, &this->VAO);
 
@@ -312,13 +346,16 @@ void Chunk::rebuild() {
     setupMesh(this->atlasChunk);
 }
 
-Chunk::~Chunk() {
+Chunk::~Chunk()
+{
 
     glDeleteBuffers(1, &this->VBO);
-    if (this->EBO != 0) {
+    if (this->EBO != 0)
+    {
         glDeleteBuffers(1, &this->EBO);
     }
-    if (this->instanceVBO != 0) {
+    if (this->instanceVBO != 0)
+    {
         glDeleteBuffers(1, &this->instanceVBO);
     }
     glDeleteVertexArrays(1, &this->VAO);

@@ -115,10 +115,11 @@ int main() {
     }
     triShader.use();
     triShader.setInt("atlasTexture", 0);
-    Chunk chunk(atlas);
+    //Chunk chunk(atlas);
 
-    camera = new Camera(chunk, glm::vec3(2.0f, 40.0f, 3.0f));
-
+    camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
+    World world(atlas, camera);
+    camera->setWorld(&world);
     glm::mat4 model1 = glm::mat4(1.0f);
     glm::mat4 model2 =
         glm::translate(glm::mat4(1.0f), glm::vec3(32.0f, 32.0f, 32.0f));
@@ -130,11 +131,7 @@ int main() {
 
     float renderDistance = 10.0f;
 
-    World world(atlas, camera);
-    size_t data;
-    data = world.hashCord(13, 67);
-    std::cout << data << std::endl;
-
+ 
     while (!glfwWindowShouldClose(window)) {
 
         // Gestion des entrées
@@ -187,7 +184,7 @@ int main() {
         atlas.bind();
         triShader.use();
         world.update(triShader);
-        chunk.draw(triShader, model1);
+        //chunk.draw(triShader, model1);
 
         /*
         glm::vec3 cameraPos = camera->getPosition();

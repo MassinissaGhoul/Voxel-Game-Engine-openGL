@@ -8,29 +8,42 @@ World::World(TextureAtlas &atlas, Camera *cameraRef)
 }
 
 void World::update(Shader &shader) {
-
     float renderDistance = 10;
+    float chunkSize = 32.0f;
     glm::vec3 cameraPos = this->cameraRef->getPosition();
-    int cameraChunkX = floor(cameraPos.x / 32);
-    int cameraChunkZ = floor(cameraPos.z / 32);
+    
+    // Calcul précis des coordonnées de chunk sans décalage
+    int cameraChunkX = static_cast<int>(std::floor(cameraPos.x / chunkSize));
+    int cameraChunkZ = static_cast<int>(std::floor(cameraPos.z / chunkSize));
+    
     int minChunkX = cameraChunkX - renderDistance;
     int maxChunkX = cameraChunkX + renderDistance;
     int minChunkZ = cameraChunkZ - renderDistance;
     int maxChunkZ = cameraChunkZ + renderDistance;
 
+    std::cout << "Camera Chunk Position: " 
+              << "x=" << cameraChunkX 
+              << ", z=" << cameraChunkZ << std::endl;
+
+    std::cout << "Chunk Calculation: " 
+              << "chunkX=" << cameraChunkX 
+              << ", chunkZ=" << cameraChunkZ 
+              << ", chunkSize=" << 32 << std::endl;
+
+    
     for (int x = minChunkX; x < maxChunkX; x++) {
         for (int z = minChunkZ; z < maxChunkZ; z++) {
-            glm::vec3 chunkPosition(x * 32 + 16, 0.0f, z * 32 + 16);
+            glm::vec3 chunkPosition(x * chunkSize, 0.0f, z * chunkSize);
             // std::cout << x << "puiis " << z << std::endl;
             float distance = glm::distance(chunkPosition, cameraPos);
             size_t key = hashCord(x, z);
             if (distance < renderDistance * 32 &&
                 worldMap.find(key) == worldMap.end()) {
-                std::cout << x << "puiis " << z << std::endl;
+                //std::cout << x << "puiis " << z << std::endl;
 
                 // Chunk chunk(atlas);
                 worldMap[key] = std::make_unique<Chunk>(this->atlas);
-                std::cout << worldMap[key] << std::endl;
+                //std::cout << worldMap[key] << std::endl;
             }
         }
     }
@@ -40,10 +53,12 @@ void World::update(Shader &shader) {
 void World::render(Shader &shader) {
 
     float renderDistance = 10;
-
+    float chunkSize = 32.0f;
     glm::vec3 cameraPos = this->cameraRef->getPosition();
-    int cameraChunkX = floor(cameraPos.x / 32);
-    int cameraChunkZ = floor(cameraPos.z / 32);
+    
+    int cameraChunkX = static_cast<int>(std::floor(cameraPos.x / chunkSize));
+    int cameraChunkZ = static_cast<int>(std::floor(cameraPos.z / chunkSize));
+    
     int minChunkX = cameraChunkX - renderDistance;
     int maxChunkX = cameraChunkX + renderDistance;
     int minChunkZ = cameraChunkZ - renderDistance;
@@ -51,7 +66,7 @@ void World::render(Shader &shader) {
 
     for (int x = minChunkX; x < maxChunkX; x++) {
         for (int z = minChunkZ; z < maxChunkZ; z++) {
-            glm::vec3 chunkPosition(x * 32 + 16, 0.0f, z * 32 + 16);
+            glm::vec3 chunkPosition(x * chunkSize , 0.0f, z * chunkSize);
             // std::cout << minChunkX << "puiis " << minChunkZ << std::endl;
             float distance = glm::distance(chunkPosition, cameraPos);
             if (distance < renderDistance * 32) {
@@ -68,11 +83,10 @@ void World::render(Shader &shader) {
 }
 
 size_t World::hashCord(int x, int z) {
-    size_t hx = std::hash<int>()(x);
-
-    size_t hz = std::hash<int>()(z);
-
-    return ((hx << 1) ^ hz);
+    size_t seed = 0;
+    seed ^= std::hash<int>()(x) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= std::hash<int>()(z) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    return seed;
 }
 
 World::~World() { std::cout << "destr" << std::endl; }

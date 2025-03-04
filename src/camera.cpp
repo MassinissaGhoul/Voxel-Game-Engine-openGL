@@ -3,9 +3,10 @@
 #include "linking/include/glm/ext/vector_float3.hpp"
 #include "linking/include/glm/geometric.hpp"
 #include <algorithm>
-Camera::Camera(Chunk &chunkRef, glm::vec3 position, glm::vec3 up, float yaw,
+Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw,
                float pitch)
-    : chunk(chunkRef) {
+
+{
     this->cameraPos = position;
     this->cameraUp = up;
     this->yaw = YAW;
@@ -18,7 +19,13 @@ Camera::Camera(Chunk &chunkRef, glm::vec3 position, glm::vec3 up, float yaw,
     updateCameraVectors();
 }
 
-void Camera::update(float deltaTime) {
+void Camera::setWorld(World *worldPtr)
+{
+    this->worldPtr = worldPtr;
+}
+
+void Camera::update(float deltaTime)
+{
     /*
         int blockX = static_cast<int>(floor(cameraPos.x));
         int blockY = static_cast<int>(floor(cameraPos.y));
@@ -40,15 +47,18 @@ void Camera::update(float deltaTime) {
 
     // rayCast();
 }
-void Camera::jump() {
-    if (this->isGrounded) {
+void Camera::jump()
+{
+    if (this->isGrounded)
+    {
 
         this->veloVec.y = 10.0f;
         this->isGrounded = false;
         std::cout << "sauteur\n";
     }
 }
-void Camera::keyboardInput(Camera_Movement direction, float deltaTime) {
+void Camera::keyboardInput(Camera_Movement direction, float deltaTime)
+{
     float velocity = this->movementSpeed * deltaTime;
     /*
     std::cout << "x = " << this->cameraPos.x << "\n"
@@ -60,7 +70,8 @@ void Camera::keyboardInput(Camera_Movement direction, float deltaTime) {
     int blockZ = static_cast<int>(floor(cameraPos.z));
     int r = static_cast<int>(cameraFront.x);
     // std::cout << blockX << blockY << blockZ << std::endl;
-    switch (direction) {
+    switch (direction)
+    {
     case FORWARD:
         /*
     std::cout << "Mouvement détecté: AVANCE " << direction << std::endl;
@@ -93,7 +104,8 @@ void Camera::keyboardInput(Camera_Movement direction, float deltaTime) {
 }
 
 void Camera::mouseInput(float xoffset, float yoffset,
-                        GLboolean constraintPitch) {
+                        GLboolean constraintPitch)
+{
     /*
     std::cout << "Offsets souris: X=" << xoffset << ", Y=" << yoffset
               << std::endl; */
@@ -101,12 +113,15 @@ void Camera::mouseInput(float xoffset, float yoffset,
     yoffset *= this->mouseSensitivity;
     this->yaw += xoffset;
     this->pitch += yoffset;
-    if (constraintPitch) {
-        if (this->pitch > 89.0f) {
+    if (constraintPitch)
+    {
+        if (this->pitch > 89.0f)
+        {
             this->pitch = 89.0f;
         }
 
-        if (this->pitch < -89.0f) {
+        if (this->pitch < -89.0f)
+        {
             this->pitch = -89.0f;
         }
     }
@@ -118,14 +133,16 @@ void Camera::mouseInput(float xoffset, float yoffset,
 
 void Camera::scrollInput(float soffset) { return; }
 
-glm::mat4 Camera::getViewMatrix() {
+glm::mat4 Camera::getViewMatrix()
+{
     return glm::lookAt(this->cameraPos, this->cameraPos + this->cameraFront,
                        this->cameraUp);
 }
 
 glm::vec3 Camera::getPosition() const { return this->cameraPos; }
 
-void Camera::updateCameraVectors() {
+void Camera::updateCameraVectors()
+{
     // Calcul de cameraFront à partir de Yaw et Pitch
     glm::vec3 front;
     front.x = cos(glm::radians(this->yaw)) * cos(glm::radians(this->pitch));
@@ -146,55 +163,132 @@ void Camera::updateCameraVectors() {
               << cameraFront.y << ", " << cameraFront.z << std::endl; */
 }
 
-void Camera::placeBlock(int blockX, int blockY, int blockZ, glm::vec3 face) {
-    float absX = abs(face.x);
-    float absY = abs(face.y);
-    float absZ = abs(face.z);
+void Camera::worldToChunk(int worldX, int worldY, int worldZ,
+                          int &chunkX, int &chunkY, int &chunkZ,
+                          int &localX, int &localY, int &localZ,
+                          int CHUNK_SIZE)
+{
+    chunkX = static_cast<int>(std::floor(static_cast<float>(worldX) / CHUNK_SIZE));
+    chunkY = static_cast<int>(std::floor(static_cast<float>(worldY) / CHUNK_SIZE));
+    chunkZ = static_cast<int>(std::floor(static_cast<float>(worldZ) / CHUNK_SIZE));
 
-    if (absX > absY && absX > absZ) {
-        if (face.x > 0) {
-            chunk.action(blockX + 1, blockY, blockZ, 0);
-        } else {
-            chunk.action(blockX - 1, blockY, blockZ, 0);
-        }
-    } else if (absY > absX && absY > absZ) {
-        if (face.y > 0) {
-            chunk.action(blockX, blockY + 1, blockZ, 0);
-        } else {
-            chunk.action(blockX, blockY - 1, blockZ, 0);
-        }
-    } else if (absZ > absX && absZ > absY) {
-        if (face.z > 0) {
-            chunk.action(blockX, blockY, blockZ + 1, 0);
-        } else {
+    // Calcul des coordonnées locales
+    localX = worldX - (chunkX * CHUNK_SIZE);
+    localY = worldY - (chunkY * CHUNK_SIZE);
+    localZ = worldZ - (chunkZ * CHUNK_SIZE);
+}
 
-            chunk.action(blockX, blockY, blockZ - 1, 0);
-        }
-    } else {
+void Camera::placeBlock(int worldX, int worldY, int worldZ, glm::vec3 face)
+{
+    int chunkX, chunkY, chunkZ, localX, localY, localZ;
+    // Conversion initiale des coordonnées mondiales en coordonnées de chunk/local
+    worldToChunk(worldX, worldY, worldZ,
+                 chunkX, chunkY, chunkZ,
+                 localX, localY, localZ, 32);
+    std::cout << "World Coordinates: "
+              << "x=" << worldX
+              << ", y=" << worldY
+              << ", z=" << worldZ << std::endl;
+
+    std::cout << "Chunk Coordinates: "
+              << "chunkX=" << chunkX
+              << ", chunkY=" << chunkY
+              << ", chunkZ=" << chunkZ << std::endl;
+
+    std::cout << "Local Coordinates: "
+              << "localX=" << localX
+              << ", localY=" << localY
+              << ", localZ=" << localZ << std::endl;
+
+    // Détermination de la face dominante pour savoir quel bloc adjacent doit être ciblé
+    if (abs(face.x) > abs(face.y) && abs(face.x) > abs(face.z))
+    {
+        if (face.x > 0)
+            worldX++;
+        else
+            worldX--;
+    }
+    else if (abs(face.y) > abs(face.x) && abs(face.y) > abs(face.z))
+    {
+        if (face.y > 0)
+            worldY++;
+        else
+            worldY--;
+    }
+    else if (abs(face.z) > abs(face.x) && abs(face.z) > abs(face.y))
+    {
+        if (face.z > 0)
+            worldZ++;
+        else
+            worldZ--;
+    }
+    else
+    {
         std::cout << "No clear dominant direction!" << std::endl;
+        return;
+    }
+
+    worldToChunk(worldX, worldY, worldZ,
+                 chunkX, chunkY, chunkZ,
+                 localX, localY, localZ, 32);
+
+    size_t key;
+    // std::cout << worldX << worldZ << "FIN SALVE\n";
+    // std::cout << this->cameraPos.x << this->cameraPos.z << "FIN SALVE2222222222\n";
+    key = this->worldPtr->hashCord(chunkX, chunkZ);
+    if (this->worldPtr->worldMap.find(key) != this->worldPtr->worldMap.end())
+    {
+        std::cout << "EXISTE\n";
+        this->worldPtr->worldMap[key]->action(localX, localY, localZ, 0);
+    }
+    else
+    {
+        std::cout << "EXISTE PAS\n";
     }
 }
-void Camera::rayCast(int option) {
+
+void Camera::rayCast(int option)
+{
     glm::vec3 ray;
     const float maxDistance = 6.0f;
     const float stepDistance = 0.1f;
-    for (float distance = 0; distance < maxDistance; distance += stepDistance) {
+
+    for (float distance = 0; distance < maxDistance; distance += stepDistance)
+    {
         ray = this->cameraPos + (this->cameraFront * distance);
-        int blockX = static_cast<int>(floor(ray.x));
-        int blockY = static_cast<int>(floor(ray.y));
-        int blockZ = static_cast<int>(floor(ray.z));
+        int worldX = static_cast<int>(std::floor(ray.x));
+        int worldY = static_cast<int>(std::floor(ray.y));
+        int worldZ = static_cast<int>(std::floor(ray.z));
 
-        if (blockX >= 0 && blockX < chunk.CHUNK_SIZE && blockY >= 0 &&
-            blockY < chunk.CHUNK_SIZE && blockZ >= 0 &&
-            blockZ < chunk.CHUNK_SIZE) {
+        int chunkX, chunkY, chunkZ, localX, localY, localZ;
+        worldToChunk(worldX, worldY, worldZ,
+                     chunkX, chunkY, chunkZ,
+                     localX, localY, localZ, 32);
 
-            if (chunk.blocks[blockX][blockY][blockZ] != AIR) {
-                if (option == 0) {
-                    glm::vec3 face = (ray - glm::vec3(blockX, blockY, blockZ)) -
+        if (localX >= 0 && localX < 32 &&
+            localY >= 0 && localY < 32 &&
+            localZ >= 0 && localZ < 32)
+        {
+            size_t keyT;
+            keyT = this->worldPtr->hashCord(chunkX, chunkZ);
+
+
+                     
+            if (this->worldPtr->worldMap[keyT]->blocks[localX][localY][localZ] != AIR)
+            {
+                if (option == 0)
+                {
+                    glm::vec3 face = (ray - glm::vec3(worldX, worldY, worldZ)) -
                                      glm::vec3(0.5f);
-                    placeBlock(blockX, blockY, blockZ, face);
-                } else {
-                    chunk.action(blockX, blockY, blockZ, option);
+                    // std::cout << "tuer moi" << worldX<< "\n" << worldZ<< "\n" << worldY << " AHUAHA\n";
+                    placeBlock(worldX, worldY, worldZ, face);
+                }
+                else
+                {
+                    size_t key;
+                    key = this->worldPtr->hashCord(chunkX, chunkZ);
+
+                    this->worldPtr->worldMap[key]->action(localX, localY, localZ, option);
                 }
                 return;
             }

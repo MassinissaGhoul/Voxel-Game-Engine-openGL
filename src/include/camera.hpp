@@ -13,7 +13,14 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-enum Camera_Movement { FORWARD, BACKWARD, LEFT, RIGHT };
+#include "world.hpp"
+enum Camera_Movement
+{
+    FORWARD,
+    BACKWARD,
+    LEFT,
+    RIGHT
+};
 
 // Default camera values
 const float YAW = -90.0f;
@@ -22,38 +29,47 @@ const float SPEED = 20.612f;
 const float SENSITIVITY = 1.0f;
 const float ZOOM = 45.0f;
 const float GRAVITY = -9.81f;
-class Camera {
-    public:
-        glm::vec3 cameraPos;
-        glm::vec3 cameraFront;
-        glm::vec3 cameraUp;
-        glm::vec3 cameraRight;
-        glm::vec3 veloVec;
-        glm::vec3 gravityVec;
-        float yaw;
-        float pitch;
-        float movementSpeed;
-        float mouseSensitivity;
-        bool isGrounded;
-        Camera(Chunk &chunkRef,
-               glm::vec3 position = glm::vec3(1.0f, 1.0f, 1.0f),
-               glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW,
-               float pitch = PITCH);
-        void update(float deltaTime);
-        void jump();
-        void movement();
-        glm::mat4 getViewMatrix();
-        void keyboardInput(Camera_Movement direction, float deltaTime);
-        void mouseInput(float xoffset, float yoffset,
-                        GLboolean constraintPitch = true);
-        void scrollInput(float soffset);
-        glm::vec3 getPosition() const;
-        void placeBlock(int blockX, int blockY, int blockZ, glm::vec3 face);
-        void rayCast(int option); // 0 == place block 1 == destroy block
+class World;
+class Camera
+{
+public:
+    glm::vec3 cameraPos;
+    glm::vec3 cameraFront;
+    glm::vec3 cameraUp;
+    glm::vec3 cameraRight;
+    glm::vec3 veloVec;
+    glm::vec3 gravityVec;
+    float yaw;
+    float pitch;
+    float movementSpeed;
+    float mouseSensitivity;
+    bool isGrounded;
+    Camera(
+        glm::vec3 position = glm::vec3(1.0f, 1.0f, 1.0f),
+        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW,
+        float pitch = PITCH);
 
-    private:
-        Chunk &chunk;
-        void updateCameraVectors();
+    void worldToChunk(int worldX, int worldY, int worldZ,
+                      int &chunkX, int &chunkY, int &chunkZ,
+                      int &localX, int &localY, int &localZ,
+                      int CHUNK_SIZE);
+    void setWorld(World *worldPtr);
+    void update(float deltaTime);
+    void jump();
+    void movement();
+    glm::mat4 getViewMatrix();
+    void keyboardInput(Camera_Movement direction, float deltaTime);
+    void mouseInput(float xoffset, float yoffset,
+                    GLboolean constraintPitch = true);
+    void scrollInput(float soffset);
+    glm::vec3 getPosition() const;
+    void placeBlock(int worldX, int worldY, int worldZ, glm::vec3 face);
+    void rayCast(int option); // 0 == place block 1 == destroy block
+
+private:
+    World *worldPtr;
+    //Chunk &chunk;
+    void updateCameraVectors();
 };
 
 #endif
