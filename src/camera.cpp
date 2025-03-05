@@ -38,7 +38,7 @@ void Camera::update(float deltaTime)
         size_t key;
         key = this->worldPtr->hashCord(chunkX, chunkZ);
 
-        if (localY > 0 && this->worldPtr->worldMap[key]->blocks[localX][localY - 1][localZ] != AIR)
+        if (localY > 0 && this->worldPtr->worldMap[key]->blocks[localX][localY - 2][localZ] != AIR)
         {
             this->isGrounded = true;
             this->cameraPos.y = static_cast<float>(localY + 1);
