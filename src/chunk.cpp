@@ -3,10 +3,11 @@
 #include "include/blockRegistry.hpp"
 #include <cstdint>
 #include <iterator>
-
+#include <chrono>
 Chunk::Chunk(TextureAtlas &atlas)
     : atlasChunk(atlas)
 {
+
     for (int x = 0; x < CHUNK_SIZE; x++)
     {
         for (int z = 0; z < CHUNK_SIZE; z++)
@@ -45,6 +46,7 @@ Chunk::Chunk(TextureAtlas &atlas)
     glGenVertexArrays(1, &this->VAO);
     glGenBuffers(1, &this->VBO);
     setupMesh(this->atlasChunk);
+
 }
 bool Chunk::isFaceVisible(int x, int y, int z, Direction direction)
 {
@@ -60,7 +62,6 @@ bool Chunk::isFaceVisible(int x, int y, int z, Direction direction)
     blockType neighbor = blocks[nx][ny][nz];
     if (neighbor == AIR)
     {
-        // std::cout << "AUIEZHEZRHUEZRUREHUÇERHU\n";
         return true;
     }
     return false;
@@ -181,12 +182,14 @@ void Chunk::addFaceVertices(std::vector<float> &vertexData, int x, int y, int z,
     addVertex(vertexData, P1.x, P1.y, P1.z, uMin, vMin);
     addVertex(vertexData, P3.x, P3.y, P3.z, uMax, vMax);
     addVertex(vertexData, P4.x, P4.y, P4.z, uMin, vMax);
+
 }
 void Chunk::setupMesh(TextureAtlas &atlas)
 {
+
+
     std::vector<float> vertexData;
     vertexData.reserve(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 6 * 6 * 5);
-    // Réserve un maximum possible (optionnel)
 
     for (int x = 0; x < CHUNK_SIZE; x++)
     {
@@ -281,10 +284,13 @@ void Chunk::setupMesh(TextureAtlas &atlas)
 
     // Garde en mémoire le nombre de vertices pour le draw d'ou le / 5
     totalVertices = static_cast<int>(vertexData.size() / 5);
+
 }
 
 void Chunk::draw(Shader &shader, glm::mat4 model)
 {
+    auto startTime = std::chrono::high_resolution_clock::now();
+
     // si atlas.bind() is not in main put it here
     shader.use();
     glBindVertexArray(VAO);
@@ -296,31 +302,26 @@ void Chunk::draw(Shader &shader, glm::mat4 model)
     // shader.setMat4("model", model2);
     glDrawArrays(GL_TRIANGLES, 0, totalVertices);
     glBindVertexArray(0);
+
 }
 
 void Chunk::action(int x, int y, int z, int option)
 {
 
-    std::cout << "Action called with coordinates: "
-              << "x=" << x << ", y=" << y << ", z=" << z
-              << ", option=" << option << std::endl;
+
 
     if (x >= 0 && x < this->CHUNK_SIZE && y >= 0 && y < this->CHUNK_SIZE &&
         z >= 0 && z < this->CHUNK_SIZE)
     {
-        std::cout << "Current block state before: "
-                  << this->blocks[x][y][z] << std::endl;
         switch (option)
         {
         case 0:
-            std::cout << "Block set to: "
-                      << this->blocks[x][y][z] << std::endl;
             this->blocks[x][y][z] = STONE;
             break;
         case 1:
             this->blocks[x][y][z] = AIR;
             break;
-        case 3:
+        case 3: // case de debug
             std::cout << "dans le case" << std::endl;
             this->blocks[x][y][z] = STONE;
             break;
@@ -334,7 +335,6 @@ void Chunk::action(int x, int y, int z, int option)
 
 void Chunk::rebuild()
 {
-    std::cout << "rebuilddddddddddd \n";
     glDeleteBuffers(1, &this->VBO);
     glDeleteVertexArrays(1, &this->VAO);
 

@@ -14,7 +14,7 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw,
     this->mouseSensitivity = SENSITIVITY;
     this->movementSpeed = SPEED;
     this->isGrounded = false;
-    this->veloVec = glm::vec3(2.0f, 2.0f, 0.0f);
+    this->veloVec = glm::vec3(0.0f, 0.0f, 0.0f);
     this->gravityVec = glm::vec3(0.0f, -2.0f, 0.0f);
     updateCameraVectors();
 }
@@ -26,27 +26,33 @@ void Camera::setWorld(World *worldPtr)
 
 void Camera::update(float deltaTime)
 {
-    /*
-        int blockX = static_cast<int>(floor(cameraPos.x));
-        int blockY = static_cast<int>(floor(cameraPos.y));
-        int blockZ = static_cast<int>(floor(cameraPos.z));
-        if (chunk.blocks[blockX][blockY - 1][blockZ] == STONE) {
+    
+        int worldX = static_cast<int>(floor(cameraPos.x));
+        int worldY = static_cast<int>(floor(cameraPos.y));
+        int worldZ = static_cast<int>(floor(cameraPos.z));
+
+        int chunkX, chunkY, chunkZ, localX, localY, localZ;
+        worldToChunk(worldX, worldY, worldZ,
+                     chunkX, chunkY, chunkZ,
+                     localX, localY, localZ, 32);
+        size_t key;
+        key = this->worldPtr->hashCord(chunkX, chunkZ);
+
+        if (localY > 0 && this->worldPtr->worldMap[key]->blocks[localX][localY - 1][localZ] != AIR)
+        {
             this->isGrounded = true;
-        }
-        if (blockY > 0 && chunk.blocks[blockX][blockY - 1][blockZ] == STONE) {
-            this->isGrounded = true;
-            this->cameraPos.y = blockY;
+            this->cameraPos.y = static_cast<float>(localY + 1);
             this->veloVec.y = 0.0f;
-
-        } else {
-            this->isGrounded = false;
-            this->cameraPos = this->cameraPos + this->veloVec * deltaTime;
-            this->veloVec = this->veloVec + this->gravityVec * deltaTime;
         }
-    */
-
-    // rayCast();
+        else
+        {
+            this->isGrounded = false;
+            this->veloVec.y += GRAVITY * deltaTime;
+            this->cameraPos += this->veloVec * deltaTime;
+        }
+    
 }
+
 void Camera::jump()
 {
     if (this->isGrounded)
@@ -185,22 +191,6 @@ void Camera::placeBlock(int worldX, int worldY, int worldZ, glm::vec3 face)
     worldToChunk(worldX, worldY, worldZ,
                  chunkX, chunkY, chunkZ,
                  localX, localY, localZ, 32);
-    std::cout << "World Coordinates: "
-              << "x=" << worldX
-              << ", y=" << worldY
-              << ", z=" << worldZ << std::endl;
-
-    std::cout << "Chunk Coordinates: "
-              << "chunkX=" << chunkX
-              << ", chunkY=" << chunkY
-              << ", chunkZ=" << chunkZ << std::endl;
-
-    std::cout << "Local Coordinates: "
-              << "localX=" << localX
-              << ", localY=" << localY
-              << ", localZ=" << localZ << std::endl;
-
-    // Détermination de la face dominante pour savoir quel bloc adjacent doit être ciblé
     if (abs(face.x) > abs(face.y) && abs(face.x) > abs(face.z))
     {
         if (face.x > 0)
@@ -233,17 +223,13 @@ void Camera::placeBlock(int worldX, int worldY, int worldZ, glm::vec3 face)
                  localX, localY, localZ, 32);
 
     size_t key;
-    // std::cout << worldX << worldZ << "FIN SALVE\n";
-    // std::cout << this->cameraPos.x << this->cameraPos.z << "FIN SALVE2222222222\n";
     key = this->worldPtr->hashCord(chunkX, chunkZ);
     if (this->worldPtr->worldMap.find(key) != this->worldPtr->worldMap.end())
     {
-        std::cout << "EXISTE\n";
         this->worldPtr->worldMap[key]->action(localX, localY, localZ, 0);
     }
     else
     {
-        std::cout << "EXISTE PAS\n";
     }
 }
 
@@ -280,7 +266,6 @@ void Camera::rayCast(int option)
                 {
                     glm::vec3 face = (ray - glm::vec3(worldX, worldY, worldZ)) -
                                      glm::vec3(0.5f);
-                    // std::cout << "tuer moi" << worldX<< "\n" << worldZ<< "\n" << worldY << " AHUAHA\n";
                     placeBlock(worldX, worldY, worldZ, face);
                 }
                 else

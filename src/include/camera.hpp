@@ -28,7 +28,7 @@ const float PITCH = 0.0f;
 const float SPEED = 20.612f;
 const float SENSITIVITY = 1.0f;
 const float ZOOM = 45.0f;
-const float GRAVITY = -9.81f;
+const float GRAVITY = -28.0f;
 class World;
 class Camera
 {

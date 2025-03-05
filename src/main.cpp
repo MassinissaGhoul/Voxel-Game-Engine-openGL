@@ -117,7 +117,7 @@ int main() {
     triShader.setInt("atlasTexture", 0);
     //Chunk chunk(atlas);
 
-    camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
+    camera = new Camera(glm::vec3(0.0f, 78.0f, 0.0f));
     World world(atlas, camera);
     camera->setWorld(&world);
     glm::mat4 model1 = glm::mat4(1.0f);
@@ -141,7 +141,6 @@ int main() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        camera->update(deltaTime);
         processInput(window);
         calculateFPS();
         triShader.setMat4("view", camera->getViewMatrix());
@@ -161,31 +160,32 @@ int main() {
         glDisable(
             GL_DEPTH_TEST); // pour être sûr que le quad soit derrière tout
         glUseProgram(skyProgram);
-
+        
         // On bind la texture
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, skyTexture);
-
+        
         // On dit au shader que "skyTexture" = unité 0
         GLint loc = glGetUniformLocation(skyProgram, "skyTexture");
         glUniform1i(loc, 0);
-
+        
         // Dessiner le quad
         glBindVertexArray(skyVAO);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glBindVertexArray(0);
-
+        
         glUseProgram(0);
         glEnable(GL_DEPTH_TEST);
-*/
-        // fgf
-
-        //       printGPUMemoryUsage();
-        atlas.bind();
-        triShader.use();
-        world.update(triShader);
-        //chunk.draw(triShader, model1);
-
+        */
+       // fgf
+       
+       //        printGPUMemoryUsage();
+       atlas.bind();
+       triShader.use();
+       world.update(triShader);
+       camera->update(deltaTime);
+       
+       // CHUNK LEGACY //chunk.draw(triShader, model1);
         /*
         glm::vec3 cameraPos = camera->getPosition();
         int cameraChunkX = floor(cameraPos.x / 32);

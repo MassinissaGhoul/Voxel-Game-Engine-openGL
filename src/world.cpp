@@ -1,5 +1,6 @@
 // undored map a utiliser
 #include "include/world.hpp"
+#include <chrono>
 
 World::World(TextureAtlas &atlas, Camera *cameraRef)
     : cameraRef(cameraRef),
@@ -8,7 +9,10 @@ World::World(TextureAtlas &atlas, Camera *cameraRef)
 }
 
 void World::update(Shader &shader) {
-    float renderDistance = 10;
+    // Démarrage du chronomètre
+   // auto startTime = std::chrono::high_resolution_clock::now();
+    
+    float renderDistance = 5;
     float chunkSize = 32.0f;
     glm::vec3 cameraPos = this->cameraRef->getPosition();
     
@@ -20,39 +24,30 @@ void World::update(Shader &shader) {
     int maxChunkX = cameraChunkX + renderDistance;
     int minChunkZ = cameraChunkZ - renderDistance;
     int maxChunkZ = cameraChunkZ + renderDistance;
-
-    std::cout << "Camera Chunk Position: " 
-              << "x=" << cameraChunkX 
-              << ", z=" << cameraChunkZ << std::endl;
-
-    std::cout << "Chunk Calculation: " 
-              << "chunkX=" << cameraChunkX 
-              << ", chunkZ=" << cameraChunkZ 
-              << ", chunkSize=" << 32 << std::endl;
-
     
     for (int x = minChunkX; x < maxChunkX; x++) {
         for (int z = minChunkZ; z < maxChunkZ; z++) {
             glm::vec3 chunkPosition(x * chunkSize, 0.0f, z * chunkSize);
-            // std::cout << x << "puiis " << z << std::endl;
             float distance = glm::distance(chunkPosition, cameraPos);
             size_t key = hashCord(x, z);
-            if (distance < renderDistance * 32 &&
-                worldMap.find(key) == worldMap.end()) {
-                //std::cout << x << "puiis " << z << std::endl;
-
-                // Chunk chunk(atlas);
+            if (distance < renderDistance * 32 && worldMap.find(key) == worldMap.end()) {
                 worldMap[key] = std::make_unique<Chunk>(this->atlas);
-                //std::cout << worldMap[key] << std::endl;
             }
         }
     }
+    
     render(shader);
-}
+    /*
+    // Arrêt du chronomètre et calcul de la durée
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count();
+    std::cout << "World::update execution time: " << duration << " microseconds" << std::endl;
+*/
+    }
 
 void World::render(Shader &shader) {
 
-    float renderDistance = 10;
+    float renderDistance = 5;
     float chunkSize = 32.0f;
     glm::vec3 cameraPos = this->cameraRef->getPosition();
     
@@ -67,7 +62,6 @@ void World::render(Shader &shader) {
     for (int x = minChunkX; x < maxChunkX; x++) {
         for (int z = minChunkZ; z < maxChunkZ; z++) {
             glm::vec3 chunkPosition(x * chunkSize , 0.0f, z * chunkSize);
-            // std::cout << minChunkX << "puiis " << minChunkZ << std::endl;
             float distance = glm::distance(chunkPosition, cameraPos);
             if (distance < renderDistance * 32) {
                 size_t key = hashCord(x, z);
@@ -75,18 +69,21 @@ void World::render(Shader &shader) {
                     glm::mat4 model2 =
                         glm::translate(glm::mat4(1.0f), chunkPosition);
                     worldMap[key]->draw(shader, model2);
-                    // std::cout << "ca render les chunks" << std::endl;
                 }
             }
         }
     }
+    
 }
 
 size_t World::hashCord(int x, int z) {
+    auto startTime = std::chrono::high_resolution_clock::now();
+
     size_t seed = 0;
     seed ^= std::hash<int>()(x) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     seed ^= std::hash<int>()(z) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     return seed;
+    
 }
 
 World::~World() { std::cout << "destr" << std::endl; }
