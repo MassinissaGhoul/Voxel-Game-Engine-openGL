@@ -12,7 +12,7 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw,
     this->yaw = YAW;
     this->pitch = PITCH;
     this->mouseSensitivity = SENSITIVITY;
-    this->movementSpeed = SPEED;
+    this->movementSpeed = SPEED_WALK;
     this->isGrounded = false;
     this->veloVec = glm::vec3(0.0f, 0.0f, 0.0f);
     this->gravityVec = glm::vec3(0.0f, -2.0f, 0.0f);
@@ -26,7 +26,8 @@ void Camera::setWorld(World *worldPtr)
 
 void Camera::update(float deltaTime)
 {
-    
+    if (this->gamemode)
+    {
         int worldX = static_cast<int>(floor(cameraPos.x));
         int worldY = static_cast<int>(floor(cameraPos.y));
         int worldZ = static_cast<int>(floor(cameraPos.z));
@@ -34,7 +35,7 @@ void Camera::update(float deltaTime)
         int chunkX, chunkY, chunkZ, localX, localY, localZ;
         worldToChunk(worldX, worldY, worldZ,
                      chunkX, chunkY, chunkZ,
-                     localX, localY, localZ, 32);
+                     localX, localY, localZ, 32, 256);
         size_t key;
         key = this->worldPtr->hashCord(chunkX, chunkZ);
 
@@ -50,7 +51,7 @@ void Camera::update(float deltaTime)
             this->veloVec.y += GRAVITY * deltaTime;
             this->cameraPos += this->veloVec * deltaTime;
         }
-    
+    }
 }
 
 void Camera::jump()
@@ -65,44 +66,41 @@ void Camera::jump()
 }
 void Camera::keyboardInput(Camera_Movement direction, float deltaTime)
 {
-    float velocity = this->movementSpeed * deltaTime;
-    /*
-    std::cout << "x = " << this->cameraPos.x << "\n"
-              << "y  = " << this->cameraPos.y << "\n"
-              << "z = " << this->cameraPos.z << "\n";
-*/
-    int blockX = static_cast<int>(floor(cameraPos.x));
-    int blockY = static_cast<int>(floor(cameraPos.y));
-    int blockZ = static_cast<int>(floor(cameraPos.z));
-    int r = static_cast<int>(cameraFront.x);
-    // std::cout << blockX << blockY << blockZ << std::endl;
+    float velocity = SPEED_WALK * deltaTime;
+    glm::vec3 front;
+    int worldX = static_cast<int>(floor(cameraPos.x));
+    int worldY = static_cast<int>(floor(cameraPos.y));
+    int worldZ = static_cast<int>(floor(cameraPos.z));
+
+    int chunkX, chunkY, chunkZ, localX, localY, localZ;
+    worldToChunk(worldX, worldY, worldZ,
+                 chunkX, chunkY, chunkZ,
+                 localX, localY, localZ, 32, 256);
+    size_t key;
+    key = this->worldPtr->hashCord(chunkX, chunkZ);
+
+    if (this->gamemode)
+    {
+        front = glm::vec3(cameraFront.x, 0.0f, cameraFront.z);
+    }
+    else
+    {
+        front = this->cameraFront;
+    }
     switch (direction)
     {
     case FORWARD:
-        /*
-    std::cout << "Mouvement détecté: AVANCE " << direction << std::endl;
+        this->cameraPos += front * velocity;
 
-        if (chunk.blocks[blockX + static_cast<int>(r * velocity)][blockY]
-                        [blockZ] != STONE) {
-            std::cout << "stone \n";
-
-            // this->cameraPos += cameraFront * velocity;
-        }
-*/
-        this->cameraPos += cameraFront * velocity;
         break;
     case BACKWARD:
-        // std::cout << "Mouvement détecté: RECULE " << direction << std::endl;
-        this->cameraPos -= cameraFront * velocity;
+        this->cameraPos -= front * velocity;
         break;
     case LEFT:
-        // std::cout << "Mouvement détecté: LEFT BOUFFON " << direction <<
-        // std::endl;
 
         this->cameraPos -= cameraRight * velocity;
         break;
     case RIGHT:
-        // std::cout << "Mouvement détecté:RIGHT  " << direction << std::endl;
 
         this->cameraPos += cameraRight * velocity;
         break;
@@ -172,15 +170,15 @@ void Camera::updateCameraVectors()
 void Camera::worldToChunk(int worldX, int worldY, int worldZ,
                           int &chunkX, int &chunkY, int &chunkZ,
                           int &localX, int &localY, int &localZ,
-                          int CHUNK_SIZE)
+                          int CHUNK_SIZE, int CHUNK_HEIGHT)
 {
     chunkX = static_cast<int>(std::floor(static_cast<float>(worldX) / CHUNK_SIZE));
-    chunkY = static_cast<int>(std::floor(static_cast<float>(worldY) / CHUNK_SIZE));
+    chunkY = static_cast<int>(std::floor(static_cast<float>(worldY) / CHUNK_HEIGHT));
     chunkZ = static_cast<int>(std::floor(static_cast<float>(worldZ) / CHUNK_SIZE));
 
     // Calcul des coordonnées locales
     localX = worldX - (chunkX * CHUNK_SIZE);
-    localY = worldY - (chunkY * CHUNK_SIZE);
+    localY = worldY - (chunkY * CHUNK_HEIGHT);
     localZ = worldZ - (chunkZ * CHUNK_SIZE);
 }
 
@@ -190,7 +188,7 @@ void Camera::placeBlock(int worldX, int worldY, int worldZ, glm::vec3 face)
     // Conversion initiale des coordonnées mondiales en coordonnées de chunk/local
     worldToChunk(worldX, worldY, worldZ,
                  chunkX, chunkY, chunkZ,
-                 localX, localY, localZ, 32);
+                 localX, localY, localZ, 32, 256);
     if (abs(face.x) > abs(face.y) && abs(face.x) > abs(face.z))
     {
         if (face.x > 0)
@@ -220,7 +218,7 @@ void Camera::placeBlock(int worldX, int worldY, int worldZ, glm::vec3 face)
 
     worldToChunk(worldX, worldY, worldZ,
                  chunkX, chunkY, chunkZ,
-                 localX, localY, localZ, 32);
+                 localX, localY, localZ, 32, 256);
 
     size_t key;
     key = this->worldPtr->hashCord(chunkX, chunkZ);
@@ -249,17 +247,15 @@ void Camera::rayCast(int option)
         int chunkX, chunkY, chunkZ, localX, localY, localZ;
         worldToChunk(worldX, worldY, worldZ,
                      chunkX, chunkY, chunkZ,
-                     localX, localY, localZ, 32);
+                     localX, localY, localZ, 32, 256);
 
         if (localX >= 0 && localX < 32 &&
-            localY >= 0 && localY < 32 &&
+            localY >= 0 && localY < 256 &&
             localZ >= 0 && localZ < 32)
         {
             size_t keyT;
             keyT = this->worldPtr->hashCord(chunkX, chunkZ);
 
-
-                     
             if (this->worldPtr->worldMap[keyT]->blocks[localX][localY][localZ] != AIR)
             {
                 if (option == 0)

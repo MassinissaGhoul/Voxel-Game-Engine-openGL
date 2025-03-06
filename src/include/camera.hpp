@@ -25,8 +25,10 @@ enum Camera_Movement
 // Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 20.612f;
-const float SENSITIVITY = 1.0f;
+const float SPEED_WALK = 4.317f;
+const float SPEED_SPRINT = 5.612f; // SPEED_WALK * 1.3f
+
+const float SENSITIVITY = 0.4f;
 const float ZOOM = 45.0f;
 const float GRAVITY = -28.0f;
 class World;
@@ -44,15 +46,19 @@ public:
     float movementSpeed;
     float mouseSensitivity;
     bool isGrounded;
+    bool gamemode = 0;
     Camera(
         glm::vec3 position = glm::vec3(1.0f, 1.0f, 1.0f),
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW,
         float pitch = PITCH);
 
+    bool isBlockSolid(int worldX, int worldY, int worldZ);
+    bool isCollision(const glm::vec3 &position);
+
     void worldToChunk(int worldX, int worldY, int worldZ,
                       int &chunkX, int &chunkY, int &chunkZ,
                       int &localX, int &localY, int &localZ,
-                      int CHUNK_SIZE);
+                      int CHUNK_SIZE, int CHUNK_HEIGHT);
     void setWorld(World *worldPtr);
     void update(float deltaTime);
     void jump();

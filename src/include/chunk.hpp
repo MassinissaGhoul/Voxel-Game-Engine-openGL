@@ -34,6 +34,7 @@ class Chunk {
 
     public:
         static const size_t CHUNK_SIZE = 32;
+        static const size_t CHUNK_HEIGHT = 256; 
         TextureAtlas &atlasChunk;
         Chunk(TextureAtlas &atlas);
         ~Chunk();
@@ -45,14 +46,13 @@ class Chunk {
         bool isFaceVisible(int x, int y, int z, Direction direction);
         void draw(Shader &shader, glm::mat4 model);
         void action(int x, int y, int z, int action);
-
         void rebuild();
 
     private:
         GLuint VAO, VBO, EBO, instanceVBO;
         void setupMesh(TextureAtlas &atlas);
         int totalVertices = 0;
-        blockType blocks[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
+        blockType blocks[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
 };
 
 #endif

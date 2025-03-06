@@ -4,30 +4,31 @@
 #include <cstdint>
 #include <iterator>
 #include <chrono>
+
 Chunk::Chunk(TextureAtlas &atlas)
     : atlasChunk(atlas)
 {
+    const int MAX_TERRAIN_HEIGHT = 64; // Hauteur maximale du terrain généré
 
     for (int x = 0; x < CHUNK_SIZE; x++)
     {
         for (int z = 0; z < CHUNK_SIZE; z++)
         {
-
-            int baseHeight = CHUNK_SIZE / 2;
+            // Utilisation de MAX_TERRAIN_HEIGHT pour calculer la hauteur de base
+            int baseHeight = MAX_TERRAIN_HEIGHT / 2;
             int variation = static_cast<int>(std::sin(x * 0.3f) *
                                              std::cos(z * 0.3f) * 10.0f);
             int height = baseHeight + variation;
 
             if (height < 0)
                 height = 0;
-            if (height >= CHUNK_SIZE)
-                height = CHUNK_SIZE - 1;
+            if (height >= MAX_TERRAIN_HEIGHT)
+                height = MAX_TERRAIN_HEIGHT - 1;
 
-            for (int y = 0; y < CHUNK_SIZE; y++)
+            for (int y = 0; y < CHUNK_HEIGHT; y++)
             {
                 if (y <= height)
                 {
-
                     if (y == height)
                         blocks[x][y][z] = GRASS;
                     else if (y >= height - 3)
@@ -46,15 +47,15 @@ Chunk::Chunk(TextureAtlas &atlas)
     glGenVertexArrays(1, &this->VAO);
     glGenBuffers(1, &this->VBO);
     setupMesh(this->atlasChunk);
-
 }
+
 bool Chunk::isFaceVisible(int x, int y, int z, Direction direction)
 {
     auto [dx, dy, dz] = directionOffsets[static_cast<int>(direction)];
     int nx = x + dx;
     int ny = y + dy;
     int nz = z + dz;
-    if (nx < 0 || nx >= this->CHUNK_SIZE || ny < 0 || ny >= this->CHUNK_SIZE ||
+    if (nx < 0 || nx >= this->CHUNK_SIZE || ny < 0 || ny >= CHUNK_HEIGHT ||
         nz < 0 || nz >= this->CHUNK_SIZE)
     {
         return true;
@@ -76,6 +77,7 @@ inline void Chunk::addVertex(std::vector<float> &vertexData, float px, float py,
     vertexData.push_back(u);
     vertexData.push_back(v);
 }
+
 void Chunk::addFaceVertices(std::vector<float> &vertexData, int x, int y, int z,
                             Direction dir, float uMin, float vMin, float uMax,
                             float vMax)
@@ -182,18 +184,17 @@ void Chunk::addFaceVertices(std::vector<float> &vertexData, int x, int y, int z,
     addVertex(vertexData, P1.x, P1.y, P1.z, uMin, vMin);
     addVertex(vertexData, P3.x, P3.y, P3.z, uMax, vMax);
     addVertex(vertexData, P4.x, P4.y, P4.z, uMin, vMax);
-
 }
+
 void Chunk::setupMesh(TextureAtlas &atlas)
 {
-
-
     std::vector<float> vertexData;
-    vertexData.reserve(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 6 * 6 * 5);
+    // Modification de la réserve pour utiliser CHUNK_HEIGHT pour l'axe Y
+    vertexData.reserve(CHUNK_SIZE * CHUNK_HEIGHT * CHUNK_SIZE * 6 * 6 * 5);
 
     for (int x = 0; x < CHUNK_SIZE; x++)
     {
-        for (int y = 0; y < CHUNK_SIZE; y++)
+        for (int y = 0; y < CHUNK_HEIGHT; y++)
         {
             for (int z = 0; z < CHUNK_SIZE; z++)
             {
@@ -233,7 +234,6 @@ void Chunk::setupMesh(TextureAtlas &atlas)
                     case TOP:
                         uvIndex = bData.uvTop;
                         // std::cout << uvIndex << "\n";
-
                         break;
                     case BOTTOM:
                         uvIndex = bData.uvBottom;
@@ -284,13 +284,10 @@ void Chunk::setupMesh(TextureAtlas &atlas)
 
     // Garde en mémoire le nombre de vertices pour le draw d'ou le / 5
     totalVertices = static_cast<int>(vertexData.size() / 5);
-
 }
 
 void Chunk::draw(Shader &shader, glm::mat4 model)
 {
-    auto startTime = std::chrono::high_resolution_clock::now();
-
     // si atlas.bind() is not in main put it here
     shader.use();
     glBindVertexArray(VAO);
@@ -302,15 +299,11 @@ void Chunk::draw(Shader &shader, glm::mat4 model)
     // shader.setMat4("model", model2);
     glDrawArrays(GL_TRIANGLES, 0, totalVertices);
     glBindVertexArray(0);
-
 }
 
 void Chunk::action(int x, int y, int z, int option)
 {
-
-
-
-    if (x >= 0 && x < this->CHUNK_SIZE && y >= 0 && y < this->CHUNK_SIZE &&
+    if (x >= 0 && x < this->CHUNK_SIZE && y >= 0 && y < this->CHUNK_HEIGHT &&
         z >= 0 && z < this->CHUNK_SIZE)
     {
         switch (option)
@@ -348,7 +341,6 @@ void Chunk::rebuild()
 
 Chunk::~Chunk()
 {
-
     glDeleteBuffers(1, &this->VBO);
     if (this->EBO != 0)
     {
