@@ -16,6 +16,12 @@
 #include <GLFW/glfw3.h>
 #include <chrono>
 #include <iostream>
+
+//imgui
+#include "linking/include/imgui/imgui.h"
+#include "linking/include/imgui/imgui_impl_glfw.h"
+#include "linking/include/imgui/imgui_impl_opengl3.h"
+
 void calculateFPS();
 unsigned int SCR_WIDTH = 800;
 unsigned int SCR_HEIGHT = 600;
@@ -147,9 +153,13 @@ int main()
 
     float renderDistance = 10.0f;
 
+
+    
+
     while (!glfwWindowShouldClose(window))
     {
 
+        
         // Gestion des entrées
         // per-frame time logic
         // --------------------

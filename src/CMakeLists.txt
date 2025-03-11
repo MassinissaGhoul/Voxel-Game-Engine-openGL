@@ -13,7 +13,16 @@ set(SOURCES
     world.cpp
     worldGeneration.cpp
     linking/lib/stb.cpp
+    linking/include/imgui/imgui.cpp
+    linking/include/imgui/imgui_draw.cpp
+    linking/include/imgui/imgui_widgets.cpp
+    linking/include/imgui/imgui_tables.cpp
+    linking/include/imgui/imgui_demo.cpp
     
+    linking/include/imgui/imgui_impl_glfw.cpp
+    linking/include/imgui/imgui_impl_opengl3.cpp
+    
+
 )
 
 # Créer l'exécutable
