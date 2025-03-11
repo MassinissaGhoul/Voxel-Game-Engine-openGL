@@ -11,6 +11,7 @@ set(SOURCES
     loadSky.cpp
     blockRegistry.cpp
     world.cpp
+    worldGeneration.cpp
     linking/lib/stb.cpp
 )
 
