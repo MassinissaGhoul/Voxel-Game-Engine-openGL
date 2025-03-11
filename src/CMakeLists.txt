@@ -13,6 +13,7 @@ set(SOURCES
     world.cpp
     worldGeneration.cpp
     linking/lib/stb.cpp
+    
 )
 
 # Créer l'exécutable
