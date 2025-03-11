@@ -49,7 +49,7 @@ class Chunk {
         void rebuild();
 
     private:
-        GLuint VAO, VBO, EBO, instanceVBO;
+        GLuint VAO, VBO, EBO, instanceVBO, instanceVAO;
         void setupMesh(TextureAtlas &atlas);
         int totalVertices = 0;
         blockType blocks[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
