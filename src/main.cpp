@@ -18,9 +18,7 @@
 #include <iostream>
 
 //imgui
-#include "linking/include/imgui/imgui.h"
-#include "linking/include/imgui/imgui_impl_glfw.h"
-#include "linking/include/imgui/imgui_impl_opengl3.h"
+#include "include/adminGui.hpp"
 
 void calculateFPS();
 unsigned int SCR_WIDTH = 800;
@@ -32,7 +30,7 @@ bool firstMouse = true;
 int maxVRAM = 0.0f;
 int maxGPU = 0.0f;
 Camera *camera;
-void processInput(GLFWwindow *window);
+void processInput(GLFWwindow *window, Camera* camera);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
 // timing
@@ -154,11 +152,11 @@ int main()
     float renderDistance = 10.0f;
 
 
-    
+    AdminGui adminGui(window, camera);
 
     while (!glfwWindowShouldClose(window))
     {
-
+        
         
         // Gestion des entrées
         // per-frame time logic
@@ -166,8 +164,8 @@ int main()
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-
-        processInput(window);
+        
+        processInput(window, camera);
         calculateFPS();
         triShader.setMat4("view", camera->getViewMatrix());
         triShader.setMat4(
@@ -177,7 +175,7 @@ int main()
                 static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT),
                 0.1f, 10.0f * 32.0f)); // derniere valeur = zFar = render
                                        // distance * taille chunk
-        // Effacer le buffer couleur
+                                       // Effacer le buffer couleur
         glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // ff
@@ -185,8 +183,8 @@ int main()
         //  ==== Dessin du ciel (quad plein ecran) ====
         glDisable(
             GL_DEPTH_TEST); // pour être sûr que le quad soit derrière tout
-        glUseProgram(skyProgram);
-
+            glUseProgram(skyProgram);
+            
         // On bind la texture
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, skyTexture);
@@ -199,17 +197,18 @@ int main()
         glBindVertexArray(skyVAO);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glBindVertexArray(0);
-
+        
         glUseProgram(0);
         glEnable(GL_DEPTH_TEST);
         */
-        // fgf
+       // fgf
 
         //        printGPUMemoryUsage();
         atlas.bind();
         triShader.use();
         world.update(triShader);
         camera->update(deltaTime);
+        adminGui.showAdminGui();
 
         // CHUNK LEGACY //chunk.draw(triShader, model1);
         /*
@@ -220,7 +219,7 @@ int main()
         int maxChunkX = cameraChunkX + renderDistance;
         int minChunkZ = cameraChunkZ - renderDistance;
         int maxChunkZ = cameraChunkZ + renderDistance;
-
+        
         for (int x = minChunkX; x < maxChunkX; x++) {
             for (int z = minChunkZ; z < maxChunkZ; z++) {
                 glm::vec3 chunkPosition(x * 32 + 16, 0.0f, z * 32 + 16);
@@ -228,20 +227,20 @@ int main()
                 float distance = glm::distance(chunkPosition, cameraPos);
                 if (distance < renderDistance * 32) {
                     glm::mat4 model2 =
-                        glm::translate(glm::mat4(1.0f), chunkPosition);
+                    glm::translate(glm::mat4(1.0f), chunkPosition);
                     chunk.draw(triShader, model2);
-                }
-            }
-        }*/
+                    }
+                    }
+                    }*/
 
         block.render(triShader, atlas);
-
+        
         //  Échanger les buffers et traiter les événements
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
     std::cout << "FINAL DATA GPU = maxgpu and max vram" << maxGPU << maxVRAM
-              << std::endl;
+    << std::endl;
     // Nettoyage
     glfwDestroyWindow(window);
     glfwTerminate();
@@ -266,7 +265,7 @@ void calculateFPS()
         lastTime = currentTime;
     }
 }
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow *window, Camera* camera)
 {
     if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
     {
@@ -274,7 +273,9 @@ void processInput(GLFWwindow *window)
     }
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        camera->isCursorCaptured = !camera->isCursorCaptured;
+
+        glfwSetInputMode(window, GLFW_CURSOR, camera->isCursorCaptured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
     }
     if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
     {

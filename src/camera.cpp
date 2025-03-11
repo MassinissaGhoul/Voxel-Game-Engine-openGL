@@ -113,6 +113,8 @@ void Camera::mouseInput(float xoffset, float yoffset,
     /*
     std::cout << "Offsets souris: X=" << xoffset << ", Y=" << yoffset
               << std::endl; */
+
+    if(!this->isCursorCaptured) return;
     xoffset *= this->mouseSensitivity;
     yoffset *= this->mouseSensitivity;
     this->yaw += xoffset;

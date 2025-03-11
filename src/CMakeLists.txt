@@ -12,6 +12,7 @@ set(SOURCES
     blockRegistry.cpp
     world.cpp
     worldGeneration.cpp
+    adminGui.cpp
     linking/lib/stb.cpp
     linking/include/imgui/imgui.cpp
     linking/include/imgui/imgui_draw.cpp
