@@ -6,6 +6,7 @@
 #include "include/shader.h"
 #include "include/textureAtlas.hpp"
 #include "include/world.hpp"
+#include "include/worldGeneration.hpp"
 #include "linking/include/glm/ext/matrix_transform.hpp"
 #include "linking/include/glm/geometric.hpp"
 #include "linking/include/glm/glm.hpp"
@@ -130,9 +131,10 @@ int main()
     triShader.use();
     triShader.setInt("atlasTexture", 0);
     // Chunk chunk(atlas);
-
     camera = new Camera(glm::vec3(0.0f, 78.0f, 0.0f));
-    World world(atlas, camera);
+    WorldGeneration worldGeneration;
+
+    World world(atlas, camera, &worldGeneration);
     camera->setWorld(&world);
     glm::mat4 model1 = glm::mat4(1.0f);
     glm::mat4 model2 =

@@ -8,6 +8,7 @@
 Chunk::Chunk(TextureAtlas &atlas)
     : atlasChunk(atlas)
 {
+    /*
     const int MAX_TERRAIN_HEIGHT = 64; // Hauteur maximale du terrain généré
 
     for (int x = 0; x < CHUNK_SIZE; x++)
@@ -47,6 +48,7 @@ Chunk::Chunk(TextureAtlas &atlas)
     glGenVertexArrays(1, &this->VAO);
     glGenBuffers(1, &this->VBO);
     setupMesh(this->atlasChunk);
+    */
 }
 
 bool Chunk::isFaceVisible(int x, int y, int z, Direction direction)
@@ -337,6 +339,11 @@ void Chunk::rebuild()
 
     // Rebuild mesh with existing atlas
     setupMesh(this->atlasChunk);
+}
+
+void Chunk::setBlock(int x, int y, int z, blockType block){
+
+    this->blocks[x][y][z] = block;
 }
 
 Chunk::~Chunk()

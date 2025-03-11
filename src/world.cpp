@@ -2,9 +2,9 @@
 #include "include/world.hpp"
 #include <chrono>
 
-World::World(TextureAtlas &atlas, Camera *cameraRef)
+World::World(TextureAtlas &atlas, Camera *cameraRef, WorldGeneration* worldGeneration)
     : cameraRef(cameraRef),
-      atlas(atlas) {
+      atlas(atlas), worldGenerationRef(worldGeneration) {
     std::cout << "objet world \n";
 }
 
@@ -31,7 +31,9 @@ void World::update(Shader &shader) {
             float distance = glm::distance(chunkPosition, cameraPos);
             size_t key = hashCord(x, z);
             if (distance < renderDistance * 32 && worldMap.find(key) == worldMap.end()) {
+        
                 worldMap[key] = std::make_unique<Chunk>(this->atlas);
+                this->worldGenerationRef->generateChunk(*worldMap[key], x, z);
             }
         }
     }
@@ -68,6 +70,7 @@ void World::render(Shader &shader) {
                 if (this->worldMap.find(key) != this->worldMap.end()) {
                     glm::mat4 model2 =
                         glm::translate(glm::mat4(1.0f), chunkPosition);
+                    
                     worldMap[key]->draw(shader, model2);
                 }
             }

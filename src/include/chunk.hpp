@@ -47,6 +47,7 @@ class Chunk {
         void draw(Shader &shader, glm::mat4 model);
         void action(int x, int y, int z, int action);
         void rebuild();
+        void setBlock(int x, int y, int z, blockType block);
 
     private:
         GLuint VAO, VBO, EBO, instanceVBO, instanceVAO;
