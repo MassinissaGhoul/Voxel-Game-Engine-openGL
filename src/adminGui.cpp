@@ -1,7 +1,7 @@
 #include "include/adminGui.hpp"
 #include <iostream>
 
-AdminGui::AdminGui(GLFWwindow *window, Camera *cameraRef) : cameraRef(cameraRef)
+AdminGui::AdminGui(GLFWwindow *window, Camera *cameraRef, WorldGeneration *worldGeneration) : cameraRef(cameraRef), worldGenerationRef(worldGeneration)
 {
     std::cout << "admin gui object\n";
 
@@ -22,6 +22,7 @@ void AdminGui::showAdminGui()
     ImGui::Begin("Test UI");
     ImGui::Text("Hello, world from ImGui!");
     ImGui::Checkbox("Creatif", &this->cameraRef->gamemode);
+    ImGui::SliderInt("Float Slider", &this->worldGenerationRef->fractalValue, 2, 10);
 
     ImGui::End();
 

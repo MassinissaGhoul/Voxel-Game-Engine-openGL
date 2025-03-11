@@ -152,7 +152,7 @@ int main()
     float renderDistance = 10.0f;
 
 
-    AdminGui adminGui(window, camera);
+    AdminGui adminGui(window, camera, &worldGeneration);
 
     while (!glfwWindowShouldClose(window))
     {
