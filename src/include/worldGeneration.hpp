@@ -1,17 +1,16 @@
 #ifndef WORLDGENERATION_HPP
 #define WORLDGENERATION_HPP
-#include "world.hpp"
-class World;
-class WorldGeneration{
-    public:
+#include "chunk.hpp"
+#include "include/FastNoiseLite/FastNoiseLite.h"
+class Chunk;
+class WorldGeneration
+{
+public:
+    WorldGeneration();
+    void generateChunk(Chunk &chunk);
 
-    WorldGeneration(World& worldRef);
+private:
     ~WorldGeneration();
-    private:
-
-    
 };
 
-
-
-#endif 
+#endif
