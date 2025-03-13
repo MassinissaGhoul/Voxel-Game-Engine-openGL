@@ -35,6 +35,19 @@ void AdminGui::showAdminGui() {
     ImGui::SliderFloat("Frequency Value",
                        &this->worldRef.worldGenerationRef->frequencyValue,
                        0.01f, 0.05f);
+
+    ImGui::SliderFloat(
+        "Fractal Lacunarity Value",
+        &this->worldRef.worldGenerationRef->fractalLacunarityValue, 1.5f, 3.0f);
+
+    ImGui::SliderFloat("Fractal Gain Value",
+                       &this->worldRef.worldGenerationRef->fractalGainValue,
+                       0.3f, 0.8f);
+
+    ImGui::SliderFloat("Amplitude Value",
+                       &this->worldRef.worldGenerationRef->amplitudeValue, 2.0f,
+                       50.0f);
+
     if (ImGui::Button("Regenerate World")) {
         regenerateWorldButton();
     }

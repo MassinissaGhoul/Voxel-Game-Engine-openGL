@@ -15,11 +15,10 @@ void WorldGeneration::generateChunk(Chunk &chunk, int chunkX, int chunkZ) {
     this->noise.SetFractalType(FastNoiseLite::FractalType_FBm);
     this->noise.SetFractalOctaves(this->fractalValue);
     this->noise.SetFrequency(this->frequencyValue);
-    this->noise.SetFractalLacunarity(2.0f);
-    this->noise.SetFractalGain(0.5f);
+    this->noise.SetFractalLacunarity(this->fractalLacunarityValue);
+    this->noise.SetFractalGain(this->fractalGainValue);
 
     const int baseHeight = 20;
-    const float amplitude = 50.0f;
 
     for (int x = 0; x < chunk.CHUNK_SIZE; x++) {
         for (int z = 0; z < chunk.CHUNK_SIZE; z++) {
@@ -27,7 +26,8 @@ void WorldGeneration::generateChunk(Chunk &chunk, int chunkX, int chunkZ) {
             int worldZ = chunkZ * chunk.CHUNK_SIZE + z;
 
             float heightOffset =
-                this->noise.GetNoise((float)worldX, (float)worldZ) * amplitude;
+                this->noise.GetNoise((float)worldX, (float)worldZ) *
+                this->amplitudeValue;
             int groundHeight = static_cast<int>(baseHeight + heightOffset);
 
             if (groundHeight < 0)
