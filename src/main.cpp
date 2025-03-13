@@ -191,6 +191,7 @@ int main() {
         triShader.use();
         world.update(triShader);
         camera->update(deltaTime);
+        adminGui.calculateFPS();
         adminGui.showAdminGui();
 
         // CHUNK LEGACY //chunk.draw(triShader, model1);

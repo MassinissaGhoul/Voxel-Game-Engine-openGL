@@ -8,7 +8,7 @@
 class AdminGui {
     public:
         AdminGui(GLFWwindow *window, World &worldRef, Shader &shader);
-
+        void calculateFPS();
         void regenerateWorldButton();
         void showAdminGui();
 

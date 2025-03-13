@@ -1,6 +1,24 @@
 #include "include/adminGui.hpp"
+#include <chrono>
 #include <iostream>
+int fps = 0;
+void AdminGui::calculateFPS() {
+    static int frameCount = 0;
+    static auto lastTime = std::chrono::high_resolution_clock::now();
 
+    frameCount++;
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    double elapsedTime =
+        std::chrono::duration<double, std::milli>(currentTime - lastTime)
+            .count();
+
+    if (elapsedTime > 1000.0) {
+        std::cout << "FPS: " << frameCount << std::endl;
+        fps = frameCount;
+        frameCount = 0;
+        lastTime = currentTime;
+    }
+}
 AdminGui::AdminGui(GLFWwindow *window, World &worldRef, Shader &shader)
     : worldRef(worldRef),
       shader(shader) {
@@ -27,6 +45,8 @@ void AdminGui::showAdminGui() {
     ImGui::NewFrame();
     ImGui::Begin("Admin Gui");
     ImGui::Text("Generation Settings");
+
+    ImGui::Text("FPS : %d", fps);
     ImGui::Checkbox("Survival", &this->worldRef.cameraRef->gamemode);
     ImGui::Text("Seed : %d", this->worldRef.worldGenerationRef->seed);
     if (ImGui::Button("Generate Seed")) {
