@@ -149,7 +149,7 @@ int main() {
         lastFrame = currentFrame;
 
         processInput(window, camera);
-        calculateFPS();
+        // calculateFPS();
         triShader.setMat4("view", camera->getViewMatrix());
         triShader.setMat4(
             "projection",

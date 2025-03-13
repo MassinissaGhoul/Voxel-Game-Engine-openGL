@@ -48,6 +48,10 @@ void AdminGui::showAdminGui() {
 
     ImGui::Text("FPS : %d", fps);
     ImGui::Checkbox("Survival", &this->worldRef.cameraRef->gamemode);
+    ImGui::Text("Camera Position: X: %.2f Y: %.2f Z: %.2f",
+                this->worldRef.cameraRef->cameraPos.x,
+                this->worldRef.cameraRef->cameraPos.y,
+                this->worldRef.cameraRef->cameraPos.z);
     ImGui::Text("Seed : %d", this->worldRef.worldGenerationRef->seed);
     if (ImGui::Button("Generate Seed")) {
         this->worldRef.worldGenerationRef->generateSeed();
