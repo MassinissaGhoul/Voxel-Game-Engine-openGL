@@ -2,13 +2,18 @@
 
 WorldGeneration::WorldGeneration() {
     FastNoiseLite noiseGen;
-    noiseGen.SetSeed(473);
+    noiseGen.SetSeed(this->seed);
 
     this->noise = noiseGen;
 
     std::cout << "worldgen\n";
 }
-
+void WorldGeneration::generateSeed() {
+    std::random_device rd;
+    this->seed =
+        std::abs(static_cast<int>(rd() ^ static_cast<int>(time(nullptr))));
+    this->noise.SetSeed(this->seed);
+}
 void WorldGeneration::generateChunk(Chunk &chunk, int chunkX, int chunkZ) {
     this->noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
 

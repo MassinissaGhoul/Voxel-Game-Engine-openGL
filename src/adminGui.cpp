@@ -25,9 +25,13 @@ void AdminGui::showAdminGui() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    ImGui::Begin("Test UI");
-    ImGui::Text("Hello, world from ImGui!");
-    ImGui::Checkbox("Creatif", &this->worldRef.cameraRef->gamemode);
+    ImGui::Begin("Admin Gui");
+    ImGui::Text("Generation Settings");
+    ImGui::Checkbox("Survival", &this->worldRef.cameraRef->gamemode);
+    ImGui::Text("Seed : %d", this->worldRef.worldGenerationRef->seed);
+    if (ImGui::Button("Generate Seed")) {
+        this->worldRef.worldGenerationRef->generateSeed();
+    }
 
     ImGui::SliderInt("Fractal Octave Value",
                      &this->worldRef.worldGenerationRef->fractalValue, 2, 18);
