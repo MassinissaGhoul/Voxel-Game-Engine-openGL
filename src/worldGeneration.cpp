@@ -1,7 +1,6 @@
 #include "include/worldGeneration.hpp"
 
-WorldGeneration::WorldGeneration()
-{
+WorldGeneration::WorldGeneration() {
     FastNoiseLite noiseGen;
     noiseGen.SetSeed(473);
 
@@ -11,52 +10,41 @@ WorldGeneration::WorldGeneration()
 }
 #include "include/worldGeneration.hpp"
 
-void WorldGeneration::generateChunk(Chunk &chunk, int chunkX, int chunkZ)
-{
+void WorldGeneration::generateChunk(Chunk &chunk, int chunkX, int chunkZ) {
     this->noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
 
     this->noise.SetFractalType(FastNoiseLite::FractalType_FBm);
-    this->noise.SetFractalOctaves(this->fractalValue); 
-    this->noise.SetFrequency(0.01f); 
+    this->noise.SetFractalOctaves(this->fractalValue);
+    this->noise.SetFrequency(0.01f);
     this->noise.SetFractalLacunarity(2.0f);
     this->noise.SetFractalGain(0.5f);
 
     const int baseHeight = 20;
     const float amplitude = 50.0f;
 
-    for (int x = 0; x < chunk.CHUNK_SIZE; x++)
-    {
-        for (int z = 0; z < chunk.CHUNK_SIZE; z++)
-        {
+    for (int x = 0; x < chunk.CHUNK_SIZE; x++) {
+        for (int z = 0; z < chunk.CHUNK_SIZE; z++) {
             int worldX = chunkX * chunk.CHUNK_SIZE + x;
             int worldZ = chunkZ * chunk.CHUNK_SIZE + z;
 
-            float heightOffset = this->noise.GetNoise((float)worldX, (float)worldZ) * amplitude;
+            float heightOffset =
+                this->noise.GetNoise((float)worldX, (float)worldZ) * amplitude;
             int groundHeight = static_cast<int>(baseHeight + heightOffset);
 
             if (groundHeight < 0)
                 groundHeight = 0;
-            if (groundHeight >= chunk.CHUNK_HEIGHT)
-            {
+            if (groundHeight >= chunk.CHUNK_HEIGHT) {
                 groundHeight = chunk.CHUNK_HEIGHT - 1;
             }
 
-            for (int y = 0; y < chunk.CHUNK_HEIGHT; y++)
-            {
-                if (y > groundHeight)
-                {
+            for (int y = 0; y < chunk.CHUNK_HEIGHT; y++) {
+                if (y > groundHeight) {
                     chunk.setBlock(x, y, z, AIR);
-                }
-                else if (y == groundHeight)
-                {
+                } else if (y == groundHeight) {
                     chunk.setBlock(x, y, z, GRASS);
-                }
-                else if (y >= groundHeight - 3)
-                {
+                } else if (y >= groundHeight - 3) {
                     chunk.setBlock(x, y, z, DIRT);
-                }
-                else
-                {
+                } else {
                     chunk.setBlock(x, y, z, STONE);
                 }
             }
@@ -66,7 +54,4 @@ void WorldGeneration::generateChunk(Chunk &chunk, int chunkX, int chunkZ)
     chunk.rebuild();
 }
 
-WorldGeneration::~WorldGeneration()
-{
-    std::cout << "desc gen\n";
-}
+WorldGeneration::~WorldGeneration() { std::cout << "desc gen\n"; }
