@@ -5,18 +5,16 @@
 #include "camera.hpp"
 #include "worldGeneration.hpp"
 
-class Camera;
-class WorldGeneration;
 class AdminGui {
     public:
-        AdminGui(GLFWwindow *window, Camera *cameraRef,
-                 WorldGeneration *worldGeneration);
+        AdminGui(GLFWwindow *window, World &worldRef, Shader &shader);
 
+        void regenerateWorldButton();
         void showAdminGui();
 
         ~AdminGui();
 
     private:
-        Camera *cameraRef;
-        WorldGeneration *worldGenerationRef;
+        Shader &shader;
+        World &worldRef;
 };

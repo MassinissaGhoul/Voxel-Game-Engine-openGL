@@ -1,10 +1,9 @@
 #include "include/adminGui.hpp"
 #include <iostream>
 
-AdminGui::AdminGui(GLFWwindow *window, Camera *cameraRef,
-                   WorldGeneration *worldGeneration)
-    : cameraRef(cameraRef),
-      worldGenerationRef(worldGeneration) {
+AdminGui::AdminGui(GLFWwindow *window, World &worldRef, Shader &shader)
+    : worldRef(worldRef),
+      shader(shader) {
     std::cout << "admin gui object\n";
 
     IMGUI_CHECKVERSION();
@@ -16,16 +15,29 @@ AdminGui::AdminGui(GLFWwindow *window, Camera *cameraRef,
     ImGui_ImplOpenGL3_Init("#version 330");
 }
 
+void AdminGui::regenerateWorldButton() {
+
+    std::cout << this->worldRef.worldGenerationRef->fractalValue << std::endl;
+    this->worldRef.worldMap.clear();
+    this->worldRef.update(this->shader);
+}
 void AdminGui::showAdminGui() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     ImGui::Begin("Test UI");
     ImGui::Text("Hello, world from ImGui!");
-    ImGui::Checkbox("Creatif", &this->cameraRef->gamemode);
-    ImGui::SliderInt("Float Slider", &this->worldGenerationRef->fractalValue, 2,
-                     10);
+    ImGui::Checkbox("Creatif", &this->worldRef.cameraRef->gamemode);
 
+    ImGui::SliderInt("Fractal Octave Value",
+                     &this->worldRef.worldGenerationRef->fractalValue, 2, 18);
+
+    ImGui::SliderFloat("Frequency Value",
+                       &this->worldRef.worldGenerationRef->frequencyValue,
+                       0.01f, 0.05f);
+    if (ImGui::Button("Regenerate World")) {
+        regenerateWorldButton();
+    }
     ImGui::End();
 
     ImGui::Render();

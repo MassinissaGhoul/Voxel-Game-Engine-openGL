@@ -17,7 +17,7 @@
 #include <chrono>
 #include <iostream>
 
-//imgui
+// imgui
 #include "include/adminGui.hpp"
 
 void calculateFPS();
@@ -30,59 +30,48 @@ bool firstMouse = true;
 int maxVRAM = 0.0f;
 int maxGPU = 0.0f;
 Camera *camera;
-void processInput(GLFWwindow *window, Camera* camera);
+void processInput(GLFWwindow *window, Camera *camera);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
 // timing
 float deltaTime = 0.0f; // time between current frame and last frame
 float lastFrame = 0.0f;
 
-void printGPUMemoryUsage()
-{
+void printGPUMemoryUsage() {
     std::ifstream gpuFile("/sys/class/drm/card1/device/gpu_busy_percent");
     std::ifstream vramFile("/sys/class/drm/card1/device/mem_busy_percent");
 
     int gpuUsage = 0;
     int vramUsage = 0;
 
-    if (gpuFile.is_open())
-    {
+    if (gpuFile.is_open()) {
         gpuFile >> gpuUsage;
         gpuFile.close();
-    }
-    else
-    {
+    } else {
         std::cerr << "Impossible de lire l'utilisation GPU." << std::endl;
     }
 
-    if (vramFile.is_open())
-    {
+    if (vramFile.is_open()) {
         vramFile >> vramUsage;
         vramFile.close();
-    }
-    else
-    {
+    } else {
         std::cerr << "Impossible de lire l'utilisation mémoire." << std::endl;
     }
 
     std::cout << "Utilisation GPU : " << gpuUsage << "%" << std::endl;
     std::cout << "Utilisation VRAM : " << vramUsage << "%" << std::endl;
-    if (gpuUsage > maxGPU)
-    {
+    if (gpuUsage > maxGPU) {
         maxGPU = gpuUsage;
     }
 
-    if (vramUsage > maxVRAM)
-    {
+    if (vramUsage > maxVRAM) {
         maxVRAM = vramUsage;
     }
 }
 
-int main()
-{
+int main() {
     // Initialisation de GLFW
-    if (!glfwInit())
-    {
+    if (!glfwInit()) {
         std::cerr << "Erreur : Impossible d'initialiser GLFW !" << std::endl;
         return -1;
     }
@@ -99,8 +88,7 @@ int main()
     // Création de la fenêtre
     GLFWwindow *window =
         glfwCreateWindow(800, 600, "Fenêtre OpenGL", nullptr, nullptr);
-    if (!window)
-    {
+    if (!window) {
         std::cerr << "Erreur : Échec de la création de la fenêtre GLFW !"
                   << std::endl;
         glfwTerminate();
@@ -111,8 +99,7 @@ int main()
     glfwSetCursorPosCallback(window, mouse_callback);
     // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     //   Initialisation de GLAD
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cerr << "Erreur : Impossible de charger GLAD !" << std::endl;
         return -1;
     }
@@ -127,8 +114,7 @@ int main()
     TextureAtlas atlas("texture/atlas.png", 48);
     Block block(glm::ivec3(0, 0, 0), DIRT, 2, atlas);
     std::cout << block.VAO << block.VBO;
-    if (block.VAO == 0)
-    {
+    if (block.VAO == 0) {
         std::cerr << "Erreur : VAO du Block non généré !" << std::endl;
         return -1;
     }
@@ -151,20 +137,17 @@ int main()
 
     float renderDistance = 10.0f;
 
+    AdminGui adminGui(window, world, triShader);
 
-    AdminGui adminGui(window, camera, &worldGeneration);
+    while (!glfwWindowShouldClose(window)) {
 
-    while (!glfwWindowShouldClose(window))
-    {
-        
-        
         // Gestion des entrées
         // per-frame time logic
         // --------------------
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        
+
         processInput(window, camera);
         calculateFPS();
         triShader.setMat4("view", camera->getViewMatrix());
@@ -184,7 +167,7 @@ int main()
         glDisable(
             GL_DEPTH_TEST); // pour être sûr que le quad soit derrière tout
             glUseProgram(skyProgram);
-            
+
         // On bind la texture
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, skyTexture);
@@ -197,11 +180,11 @@ int main()
         glBindVertexArray(skyVAO);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glBindVertexArray(0);
-        
+
         glUseProgram(0);
         glEnable(GL_DEPTH_TEST);
         */
-       // fgf
+        // fgf
 
         //        printGPUMemoryUsage();
         atlas.bind();
@@ -219,7 +202,7 @@ int main()
         int maxChunkX = cameraChunkX + renderDistance;
         int minChunkZ = cameraChunkZ - renderDistance;
         int maxChunkZ = cameraChunkZ + renderDistance;
-        
+
         for (int x = minChunkX; x < maxChunkX; x++) {
             for (int z = minChunkZ; z < maxChunkZ; z++) {
                 glm::vec3 chunkPosition(x * 32 + 16, 0.0f, z * 32 + 16);
@@ -234,21 +217,20 @@ int main()
                     }*/
 
         block.render(triShader, atlas);
-        
+
         //  Échanger les buffers et traiter les événements
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
     std::cout << "FINAL DATA GPU = maxgpu and max vram" << maxGPU << maxVRAM
-    << std::endl;
+              << std::endl;
     // Nettoyage
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
 }
 
-void calculateFPS()
-{
+void calculateFPS() {
     static int frameCount = 0;
     static auto lastTime = std::chrono::high_resolution_clock::now();
 
@@ -258,32 +240,28 @@ void calculateFPS()
         std::chrono::duration<double, std::milli>(currentTime - lastTime)
             .count();
 
-    if (elapsedTime > 1000.0)
-    {
+    if (elapsedTime > 1000.0) {
         std::cout << "FPS: " << frameCount << std::endl;
         frameCount = 0;
         lastTime = currentTime;
     }
 }
-void processInput(GLFWwindow *window, Camera* camera)
-{
-    if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
-    {
+void processInput(GLFWwindow *window, Camera *camera) {
+    if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         camera->isCursorCaptured = !camera->isCursorCaptured;
 
-        glfwSetInputMode(window, GLFW_CURSOR, camera->isCursorCaptured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+        glfwSetInputMode(window, GLFW_CURSOR,
+                         camera->isCursorCaptured ? GLFW_CURSOR_DISABLED
+                                                  : GLFW_CURSOR_NORMAL);
     }
-    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
-    {
+    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
         // std::cout << "LINE\n" << std::endl;
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
-    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-    {
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
         // std::cout << "FILL" << std::endl;
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
@@ -296,37 +274,31 @@ void processInput(GLFWwindow *window, Camera* camera)
         camera->keyboardInput(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera->keyboardInput(RIGHT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-    {
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         camera->jump();
     }
     if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS ||
-        glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-    {
+        glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
         camera->rayCast(1);
     }
     if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS ||
-        glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-    {
+        glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
         camera->rayCast(0);
     }
 }
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height)
-{
+void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     SCR_HEIGHT = height;
     SCR_WIDTH = width;
     std::cout << "Width: " << width << ", Height: " << height << std::endl;
     glViewport(0, 0, width, height);
 }
 
-void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
-{
+void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
-    if (firstMouse)
-    {
+    if (firstMouse) {
         lastX = xpos;
         lastY = ypos;
         firstMouse = false;

@@ -8,14 +8,13 @@ WorldGeneration::WorldGeneration() {
 
     std::cout << "worldgen\n";
 }
-#include "include/worldGeneration.hpp"
 
 void WorldGeneration::generateChunk(Chunk &chunk, int chunkX, int chunkZ) {
     this->noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
 
     this->noise.SetFractalType(FastNoiseLite::FractalType_FBm);
     this->noise.SetFractalOctaves(this->fractalValue);
-    this->noise.SetFrequency(0.01f);
+    this->noise.SetFrequency(this->frequencyValue);
     this->noise.SetFractalLacunarity(2.0f);
     this->noise.SetFractalGain(0.5f);
 

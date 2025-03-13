@@ -8,7 +8,6 @@
 #include <array>
 #include <tuple>
 
-
 #include <vector>
 
 enum Direction { FRONT, BACK, DIR_RIGHT, DIR_LEFT, TOP, BOTTOM };
@@ -34,7 +33,7 @@ class Chunk {
 
     public:
         static const size_t CHUNK_SIZE = 32;
-        static const size_t CHUNK_HEIGHT = 256; 
+        static const size_t CHUNK_HEIGHT = 256;
         TextureAtlas &atlasChunk;
         Chunk(TextureAtlas &atlas);
         ~Chunk();
