@@ -33,6 +33,7 @@ Camera *camera;
 void processInput(GLFWwindow *window, Camera *camera);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 // timing
 float deltaTime = 0.0f; // time between current frame and last frame
 float lastFrame = 0.0f;
@@ -97,6 +98,7 @@ int main() {
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetKeyCallback(window, key_callback);
     // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     //   Initialisation de GLAD
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -251,13 +253,7 @@ void processInput(GLFWwindow *window, Camera *camera) {
     if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        camera->isCursorCaptured = !camera->isCursorCaptured;
 
-        glfwSetInputMode(window, GLFW_CURSOR,
-                         camera->isCursorCaptured ? GLFW_CURSOR_DISABLED
-                                                  : GLFW_CURSOR_NORMAL);
-    }
     if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
         // std::cout << "LINE\n" << std::endl;
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -285,6 +281,18 @@ void processInput(GLFWwindow *window, Camera *camera) {
     if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS ||
         glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
         camera->rayCast(0);
+    }
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    {
+        // Toggle seulement lors du press
+        camera->isCursorCaptured = !camera->isCursorCaptured;
+        glfwSetInputMode(window, GLFW_CURSOR,
+                         camera->isCursorCaptured ? GLFW_CURSOR_DISABLED
+                                                  : GLFW_CURSOR_NORMAL);
     }
 }
 

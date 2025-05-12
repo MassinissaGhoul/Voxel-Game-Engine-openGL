@@ -14,7 +14,7 @@ void World::update(Shader &shader) {
     // Démarrage du chronomètre
     // auto startTime = std::chrono::high_resolution_clock::now();
 
-    float renderDistance = 10;
+    float renderDistance = 5.0f;
     float chunkSize = 32.0f;
     glm::vec3 cameraPos = this->cameraRef->getPosition();
 
@@ -54,7 +54,7 @@ void World::update(Shader &shader) {
 
 void World::render(Shader &shader) {
 
-    float renderDistance = 10;
+    float renderDistance = 5.0f;
     float chunkSize = 32.0f;
     glm::vec3 cameraPos = this->cameraRef->getPosition();
 

@@ -191,7 +191,6 @@ void Chunk::addFaceVertices(std::vector<float> &vertexData, int x, int y, int z,
 void Chunk::setupMesh(TextureAtlas &atlas)
 {
     std::vector<float> vertexData;
-    // Modification de la réserve pour utiliser CHUNK_HEIGHT pour l'axe Y
     vertexData.reserve(CHUNK_SIZE * CHUNK_HEIGHT * CHUNK_SIZE * 6 * 6 * 5);
 
     for (int x = 0; x < CHUNK_SIZE; x++)
